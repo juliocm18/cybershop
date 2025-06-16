@@ -8,6 +8,10 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "assetBundlePatterns": [
+      "assets/images/*",
+      "assets/video/*"
+    ],
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
@@ -17,12 +21,18 @@
       "supportsTablet": true
     },
     "android": {
-      "permissions": ["READ_PHONE_STATE"],
+      "package": "com.burbitstudio.mallcybershop",
+      "permissions": [
+        "CAMERA",
+        "MEDIA_LIBRARY",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_PHONE_STATE"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "package": "com.burbitstudio.mallcybershop"
+      }
     },
     "web": {
       "bundler": "metro",
@@ -31,17 +41,7 @@
     },
     "plugins": [
       "expo-router",
-      [
-        "expo-video",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
-          "supportsBackgroundPlayback": true,
-          "supportsPictureInPicture": true
-        }
-      ]
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true
@@ -53,12 +53,6 @@
       "eas": {
         "projectId": "8e87a6e1-1fef-4241-a33e-53062f3d9545"
       }
-    },
-    "permissions": [
-      "CAMERA",
-      "MEDIA_LIBRARY",
-      "READ_EXTERNAL_STORAGE", 
-      "WRITE_EXTERNAL_STORAGE"
-    ]
+    }
   }
 }

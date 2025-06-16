@@ -10,7 +10,7 @@ import LanguageSelector from './components/LanguageSelector';
 import { useTranslation } from "react-i18next";
 import * as WebBrowser from 'expo-web-browser';
 
-const videoSource = require("../assets/video/splash1.mp4");
+const videoSource = require("../assets/video/splash.mp4");
 const splashImage = require("../assets/images/splash.png");
 
 WebBrowser.maybeCompleteAuthSession();
