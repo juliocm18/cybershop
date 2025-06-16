@@ -9,8 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "assetBundlePatterns": [
-      "./assets/images/*",
-      "./assets/video/*"
+      "assets/images/*",
+      "assets/video/*"
     ],
     "splash": {
       "image": "./assets/images/splash.png",

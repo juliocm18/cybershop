@@ -3,52 +3,61 @@ import { useEffect, useState } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { useVideoPlayer, VideoView } from "expo-video";
 import * as WebBrowser from 'expo-web-browser';
+import { Asset } from 'expo-asset';
 import { View, Image, StyleSheet } from "react-native";
-import './i18n/i18n';
-import { useTranslation } from "react-i18next";
 
-const videoSource = require('../assets/video/splash.mp4');
-const splashImage = require('../assets/images/splash.png');
+// 🔥 Usa Asset.fromModule en lugar de require directo
+const splashVideoAsset = Asset.fromModule(require('../assets/video/splash.mp4'));
+const splashImageAsset = Asset.fromModule(require('../assets/images/splash.png'));
 
 WebBrowser.maybeCompleteAuthSession();
 
 function MainLayout() {
   const { session, loading } = useAuth();
   const router = useRouter();
-  const { i18n } = useTranslation();
-
   const [showSplashImage, setShowSplashImage] = useState(true);
   const [isVideoFinished, setIsVideoFinished] = useState(false);
+  const [videoUri, setVideoUri] = useState<string | null>(null);
 
-  const player = useVideoPlayer(videoSource, (player) => {
+  const player = useVideoPlayer(videoUri, (player) => {
     player.loop = false;
   });
 
-  // Mostrar imagen y luego reproducir video
+  // Preload y obtén las URIs del video
+  useEffect(() => {
+    const loadAssets = async () => {
+      await splashVideoAsset.downloadAsync();
+      await splashImageAsset.downloadAsync();
+      setVideoUri(splashVideoAsset.localUri || splashVideoAsset.uri);
+    };
+
+    loadAssets();
+  }, []);
+
+  // Reproduce después de 2.5s
   useEffect(() => {
     const timeout = setTimeout(() => {
       setShowSplashImage(false);
       player?.play();
     }, 2500);
     return () => clearTimeout(timeout);
-  }, []);
+  }, [player]);
 
-  // Detectar fin del video
+  // Escuchar fin del video
   useEffect(() => {
-    const interval = setInterval(() => {
+    const checkPlaybackStatus = setInterval(() => {
       if (player?.duration && player?.currentTime) {
         if (player.currentTime >= player.duration - 0.1) {
           setIsVideoFinished(true);
-          clearInterval(interval);
+          clearInterval(checkPlaybackStatus);
         }
       }
     }, 500);
-    return () => clearInterval(interval);
+    return () => clearInterval(checkPlaybackStatus);
   }, [player]);
 
-  // Redirigir al final
+  // Navegar cuando termina el video
   useEffect(() => {
-    i18n.changeLanguage("es");
     if (!loading && isVideoFinished) {
       router.replace("/locationhome");
     }
@@ -57,8 +66,8 @@ function MainLayout() {
   return (
     <View style={styles.container}>
       {showSplashImage ? (
-        <Image source={splashImage} style={styles.imageSplash} resizeMode="cover" />
-      ) : !isVideoFinished ? (
+        <Image source={{ uri: splashImageAsset.uri }} style={styles.imageSplash} resizeMode="cover" />
+      ) : !isVideoFinished && videoUri ? (
         <VideoView
           style={styles.video}
           player={player}
@@ -87,10 +96,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "white",
   },
-  video: {
-    width: "100%",
-    height: "100%",
-  },
+  video: { width: "100%", height: "100%" },
   imageSplash: {
     width: "100%",
     height: "100%",
