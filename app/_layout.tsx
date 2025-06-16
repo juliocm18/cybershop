@@ -3,13 +3,11 @@ import { useEffect, useState } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { useVideoPlayer, VideoView } from "expo-video";
 import * as WebBrowser from 'expo-web-browser';
-import { Asset } from 'expo-asset';
 import { View, Image, StyleSheet } from "react-native";
 
-// 🔥 Usa Asset.fromModule en lugar de require directo
-const splashVideoAsset = Asset.fromModule(require('../assets/video/splash.mp4'));
-const splashImageAsset = Asset.fromModule(require('../assets/images/splash.png'));
 
+const videoSource = require("../assets/video/splash.mp4");
+const splashImage = require("../assets/images/splash.png");
 WebBrowser.maybeCompleteAuthSession();
 
 function MainLayout() {
@@ -17,22 +15,10 @@ function MainLayout() {
   const router = useRouter();
   const [showSplashImage, setShowSplashImage] = useState(true);
   const [isVideoFinished, setIsVideoFinished] = useState(false);
-  const [videoUri, setVideoUri] = useState<string | null>(null);
 
-  const player = useVideoPlayer(videoUri, (player) => {
+  const player = useVideoPlayer(videoSource, (player) => {
     player.loop = false;
   });
-
-  // Preload y obtén las URIs del video
-  useEffect(() => {
-    const loadAssets = async () => {
-      await splashVideoAsset.downloadAsync();
-      await splashImageAsset.downloadAsync();
-      setVideoUri(splashVideoAsset.localUri || splashVideoAsset.uri);
-    };
-
-    loadAssets();
-  }, []);
 
   // Reproduce después de 2.5s
   useEffect(() => {
@@ -66,8 +52,8 @@ function MainLayout() {
   return (
     <View style={styles.container}>
       {showSplashImage ? (
-        <Image source={{ uri: splashImageAsset.uri }} style={styles.imageSplash} resizeMode="cover" />
-      ) : !isVideoFinished && videoUri ? (
+        <Image source={splashImage} style={styles.imageSplash} resizeMode="cover" />
+      ) : !isVideoFinished ? (
         <VideoView
           style={styles.video}
           player={player}
