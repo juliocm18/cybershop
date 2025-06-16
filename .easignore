@@ -108,7 +108,6 @@ dist/
 web-build/
 
 # Large media files (consider using Git LFS instead)
-*.mp4
 *.tiff
 *.avi
 *.flv
