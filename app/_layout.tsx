@@ -6,8 +6,8 @@ import * as WebBrowser from 'expo-web-browser';
 import { View, Image, StyleSheet } from "react-native";
 
 
-const videoSource = require("../assets/video/splash.mp4");
-const splashImage = require("../assets/images/splash.png");
+import videoSource from "../assets/video/splash.mp4";
+import splashImage from "../assets/images/splash.png";
 WebBrowser.maybeCompleteAuthSession();
 
 function MainLayout() {
