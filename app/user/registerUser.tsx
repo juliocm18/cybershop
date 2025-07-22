@@ -1,15 +1,27 @@
-import { Text, StyleSheet, TouchableOpacity, View, Image, Alert, Platform, Linking, ScrollView, KeyboardAvoidingView, SafeAreaView } from "react-native";
+import React from "react";
+import { Text, StyleSheet, TouchableOpacity, View, Image, Alert, Platform, Linking, ScrollView, KeyboardAvoidingView, SafeAreaView, Modal } from "react-native";
+
 import { TextInput, Checkbox } from "react-native-paper";
+import { Picker } from '@react-native-picker/picker';
 import { globalStyles } from "../styles";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { pickImage, uploadImage } from "../company/functions";
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useAuth } from "../context/AuthContext";
 import UserFunctions from "./functions";
 import { supabase } from "../supabase";
+import Select from "../components/select";
+import gendersData from "../data/genders.json";
+import sexualPreferencesData from "../data/sexual-preferences.json";
+import { useRouter } from "expo-router";
 
 export default function RegisterUser() {
+    const router = useRouter();
+    // ...existing state
+    const [deseaMediaNaranja, setDeseaMediaNaranja] = useState(false);
+    const [genders, setGenders] = useState(gendersData);
+    const [sexualPreferences, setSexualPreferences] = useState(sexualPreferencesData);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -17,12 +29,45 @@ export default function RegisterUser() {
     const [logoUri, setLogoUri] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [birthDate, setBirthDate] = useState(new Date());
-    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [name, setName] = useState("");
     const [validationError, setValidationError] = useState<string | null>(null);
 
-    const { signUp } = useAuth();
+    // Nuevos estados para los campos obligatorios
+    const [gender, setGender] = useState("");
+    const [sexualPreference, setSexualPreference] = useState("");
+    const [profession, setProfession] = useState("");
+    const [description, setDescription] = useState("");
+
+    // Opcionales
+    const [zodiacSign, setZodiacSign] = useState("");
+    const predefinedHobbies = ["Deportes", "Lectura", "Viajar", "Música", "Cine", "Tecnología", "Arte", "Cocina"];
+    const [hobbies, setHobbies] = useState<string[]>([]);
+    const [customHobby, setCustomHobby] = useState("");
+
+    // Función para calcular el signo zodiacal
+    function getZodiacSign(date: Date): string {
+        const day = date.getDate();
+        const month = date.getMonth() + 1;
+        if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) return "Acuario";
+        if ((month === 2 && day >= 19) || (month === 3 && day <= 20)) return "Piscis";
+        if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) return "Aries";
+        if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) return "Tauro";
+        if ((month === 5 && day >= 21) || (month === 6 && day <= 20)) return "Géminis";
+        if ((month === 6 && day >= 21) || (month === 7 && day <= 22)) return "Cáncer";
+        if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) return "Leo";
+        if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) return "Virgo";
+        if ((month === 9 && day >= 23) || (month === 10 && day <= 22)) return "Libra";
+        if ((month === 10 && day >= 23) || (month === 11 && day <= 21)) return "Escorpio";
+        if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) return "Sagitario";
+        return "Capricornio";
+    }
+
+    // Actualizar signo zodiacal cuando cambia la fecha de nacimiento
+    React.useEffect(() => {
+        setZodiacSign(getZodiacSign(birthDate));
+    }, [birthDate]);
 
     const clearFields = () => {
         setEmail("");
@@ -31,6 +76,7 @@ export default function RegisterUser() {
         setLogoUri(null);
         setLoading(false);
         setValidationError(null);
+        setDeseaMediaNaranja(false);
     };
 
     const handlePickImage = async () => {
@@ -49,7 +95,7 @@ export default function RegisterUser() {
                 .select('id')
                 .eq('email', email)
                 .maybeSingle();
-                
+
             if (error) throw error;
             return data !== null;
         } catch (error) {
@@ -66,7 +112,7 @@ export default function RegisterUser() {
                 .select('id')
                 .eq('phone_number', phone)
                 .maybeSingle();
-                
+
             if (error) throw error;
             return data !== null;
         } catch (error) {
@@ -75,16 +121,22 @@ export default function RegisterUser() {
         }
     };
 
+    const navigateToHome = () => {
+
+        router.push('/main-menu');
+        
+    };
+
     const handleSaveUser = async () => {
         // Reset validation error
         setValidationError(null);
-        
+
         // Basic field validation
         if (!email || !password || !phoneNumber || !logoUri || !birthDate || !termsAccepted || !name) {
             Alert.alert("Error", "Debe completar todos los campos y aceptar los términos y condiciones");
             return;
         }
-        
+
         // Phone number format validation (simple check for now)
         const phoneRegex = /^[0-9]{9}$/; // Assumes 10-digit phone number
         if (!phoneRegex.test(phoneNumber)) {
@@ -107,6 +159,9 @@ export default function RegisterUser() {
 
         setLoading(true);
         try {
+
+           
+
             // Check if email already exists
             const emailExists = await checkEmailExists(email);
             if (emailExists) {
@@ -114,7 +169,7 @@ export default function RegisterUser() {
                 setLoading(false);
                 return;
             }
-            
+
             // Check if phone number already exists
             const phoneExists = await checkPhoneExists(phoneNumber);
             if (phoneExists) {
@@ -122,28 +177,53 @@ export default function RegisterUser() {
                 setLoading(false);
                 return;
             }
-            
+
             const uploadedUrl = await uploadImage(logoUri);
-            console.log("uploadedUrl", uploadedUrl);
             if (uploadedUrl) {
                 console.log(" Imagen subida con éxito:", uploadedUrl);
             } else {
                 return;
             }
 
-            const userSaved = await UserFunctions.saveClient(email, password);
-
-            const newProfile = {
-                id: userSaved.id,
-                avatar_url: uploadedUrl,
-                name: name,
-                birth_date: birthDate.toISOString().split('T')[0],
-                phone_number: phoneNumber,
-                email: email, // Store email in profiles table for easier querying
-            };
-            await UserFunctions.saveClientProfile(newProfile);
-            Alert.alert("Aviso", "Registro creado con éxito");
-            clearFields();
+            // Register user using context's signUp (which wraps supabase.auth.signUp)
+            const { data, error } = await supabase.auth.signUp({ email, password });
+            if (error) {
+                setValidationError(error.message || "Ocurrió un error al registrar el usuario");
+                setLoading(false);
+                return;
+            }
+            // If registration is successful, create user profile
+            const userId = data?.user?.id;
+            if (userId) {
+                await supabase
+                    .from("user_role")
+                    .insert({ user_id: userId, role_id: 5 });
+                const newProfile = {
+                    id: userId,
+                    avatar_url: uploadedUrl,
+                    name: name,
+                    birth_date: birthDate.toISOString().split('T')[0],
+                    phone_number: phoneNumber,
+                    email: email,
+                    gender: gender,
+                    sexual_preference: sexualPreference,
+                    profession: profession,
+                    description: description,
+                    zodiac_sign: zodiacSign,
+                    hobbies: hobbies,
+                    accept_media_naranja: deseaMediaNaranja,
+                };
+                await UserFunctions.saveClientProfile(newProfile);
+                Alert.alert("Aviso", "Registro creado con éxito");
+                // Unsubscribe from all Supabase channels to prevent duplicate subscriptions
+                const allChannels = supabase.getChannels();
+                allChannels.forEach(channel => {
+                    supabase.removeChannel(channel);
+                });
+                clearFields();
+            } else {
+                setValidationError("No se pudo obtener el usuario registrado. Por favor, intente iniciar sesión.");
+            }
         } catch (error: any) {
             console.error("Error al crear el usuario:", error);
             Alert.alert("Error", "Ocurrió un error al crear el usuario");
@@ -152,11 +232,13 @@ export default function RegisterUser() {
         }
     };
 
-    const onDateChange = (event: any, selectedDate?: Date) => {
-        setShowDatePicker(false);
-        if (selectedDate) {
-            setBirthDate(selectedDate);
-        }
+    const handleConfirmDate = (date: Date) => {
+        setBirthDate(date);
+        setDatePickerVisibility(false);
+    };
+
+    const handleCancelDate = () => {
+        setDatePickerVisibility(false);
     };
 
     const openTerms = async () => {
@@ -186,7 +268,7 @@ export default function RegisterUser() {
                                     <Text style={styles.errorText}>{validationError}</Text>
                                 </View>
                             )}
-                            
+
                             <Text style={styles.inputLabel}>Nombre Completo</Text>
                             <TextInput
                                 style={styles.input}
@@ -212,7 +294,7 @@ export default function RegisterUser() {
                                 activeOutlineColor="#fb8436"
                                 theme={{ colors: { primary: '#fb8436' } }}
                             />
-                            
+
                             <Text style={styles.inputLabel}>Número de Teléfono</Text>
                             <TextInput
                                 style={styles.input}
@@ -247,27 +329,6 @@ export default function RegisterUser() {
                                 }
                             />
 
-                            <Text style={styles.inputLabel}>Fecha de Nacimiento</Text>
-                            <TouchableOpacity
-                                style={styles.datePickerButton}
-                                onPress={() => setShowDatePicker(true)}
-                            >
-                                <Ionicons name="calendar-outline" size={20} color="#666" style={styles.dateIcon} />
-                                <Text style={styles.datePickerButtonText}>
-                                    {birthDate ? birthDate.toLocaleDateString() : 'Seleccione su fecha de nacimiento'}
-                                </Text>
-                            </TouchableOpacity>
-
-                            {showDatePicker && (
-                                <DateTimePicker
-                                    value={birthDate}
-                                    mode="date"
-                                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                                    onChange={onDateChange}
-                                    maximumDate={new Date(new Date().setFullYear(new Date().getFullYear() - 18))}
-                                />
-                            )}
-
                             <Text style={styles.inputLabel}>Foto de Perfil</Text>
                             <TouchableOpacity
                                 style={styles.imagePicker}
@@ -280,6 +341,149 @@ export default function RegisterUser() {
                             {logoUri && (
                                 <View style={styles.imagePreviewContainer}>
                                     <Image source={{ uri: logoUri }} style={styles.logoPreview} />
+                                </View>
+                            )}
+
+                            {/* Género */}
+                            <Text style={styles.inputLabel}>Género</Text>
+
+                            <Select
+                                label="Género"
+                                selectedValue={gender}
+                                onValueChange={setGender}
+                                items={genders}
+                            />
+
+
+                            {/* Preferencia Sexual */}
+                            <Text style={styles.inputLabel}>Preferencia Sexual</Text>
+                            <Select
+                                label="Preferencia Sexual"
+                                selectedValue={sexualPreference}
+                                onValueChange={setSexualPreference}
+                                items={sexualPreferences}
+                            />
+
+                            {/* Profesión */}
+                            <Text style={styles.inputLabel}>Profesión</Text>
+                            <TextInput
+                                style={styles.input}
+                                label="Profesión"
+                                value={profession}
+                                onChangeText={setProfession}
+                                mode="outlined"
+                                outlineColor="#ddd"
+                                activeOutlineColor="#fb8436"
+                                theme={{ colors: { primary: '#fb8436' } }}
+                            />
+
+                            {/* Descripción */}
+                            <Text style={styles.inputLabel}>Descripción</Text>
+                            <TextInput
+                                style={styles.input}
+                                label="Cuéntanos sobre ti"
+                                value={description}
+                                onChangeText={setDescription}
+                                mode="outlined"
+                                multiline
+                                numberOfLines={4}
+                                outlineColor="#ddd"
+                                activeOutlineColor="#fb8436"
+                                theme={{ colors: { primary: '#fb8436' } }}
+                            />
+
+                            <Text style={styles.inputLabel}>Fecha de Nacimiento</Text>
+                            <TouchableOpacity
+                                style={[styles.input, { justifyContent: 'center', height: 50 }]}
+                                onPress={() => setDatePickerVisibility(true)}
+                                activeOpacity={0.7}
+                            >
+                                <Text style={{ color: '#333' }}>
+                                    {birthDate ? birthDate.toLocaleDateString('es-ES') : 'Selecciona tu fecha de nacimiento'}
+                                </Text>
+                            </TouchableOpacity>
+                            <DateTimePickerModal
+                                isVisible={isDatePickerVisible}
+                                mode="date"
+                                date={birthDate}
+                                maximumDate={new Date()}
+                                onConfirm={handleConfirmDate}
+                                onCancel={handleCancelDate}
+                                locale="es-ES"
+                                cancelTextIOS="Cancelar"
+                                confirmTextIOS="Listo"
+                            />
+
+                            {/* Signo Zodiacal */}
+                            <Text style={styles.inputLabel}>Signo Zodiacal</Text>
+                            <TextInput
+                                style={styles.input}
+                                label="Signo Zodiacal"
+                                value={zodiacSign}
+                                mode="outlined"
+                                editable={false}
+                                outlineColor="#ddd"
+                                activeOutlineColor="#fb8436"
+                                theme={{ colors: { primary: '#fb8436' } }}
+                            />
+
+                            {/* Hobbies */}
+                            <Text style={styles.inputLabel}>Hobbies</Text>
+                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10 }}>
+                                {predefinedHobbies.map((hobby) => (
+                                    <TouchableOpacity
+                                        key={hobby}
+                                        style={{
+                                            backgroundColor: hobbies.includes(hobby) ? '#fb8436' : '#f0f0f0',
+                                            padding: 8,
+                                            borderRadius: 16,
+                                            margin: 4,
+                                        }}
+                                        onPress={() => {
+                                            if (hobbies.includes(hobby)) {
+                                                setHobbies(hobbies.filter((h) => h !== hobby));
+                                            } else {
+                                                setHobbies([...hobbies, hobby]);
+                                            }
+                                        }}
+                                    >
+                                        <Text style={{ color: hobbies.includes(hobby) ? '#fff' : '#333' }}>{hobby}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                                <TextInput
+                                    style={[styles.input, { flex: 1 }]}
+                                    label="Agregar hobby"
+                                    value={customHobby}
+                                    onChangeText={setCustomHobby}
+                                    mode="outlined"
+                                    outlineColor="#ddd"
+                                    activeOutlineColor="#fb8436"
+                                    theme={{ colors: { primary: '#fb8436' } }}
+                                />
+                                <TouchableOpacity
+                                    style={{ marginLeft: 8, backgroundColor: '#fb8436', padding: 10, borderRadius: 8 }}
+                                    onPress={() => {
+                                        if (customHobby.trim() && !hobbies.includes(customHobby.trim())) {
+                                            setHobbies([...hobbies, customHobby.trim()]);
+                                            setCustomHobby("");
+                                        }
+                                    }}
+                                >
+                                    <Ionicons name="add" size={20} color="#fff" />
+                                </TouchableOpacity>
+                            </View>
+                            {hobbies.length > 0 && (
+                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10 }}>
+                                    {hobbies.map((hobby) => (
+                                        <View key={hobby} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#f0f0f0', borderRadius: 16, padding: 6, margin: 4 }}>
+                                            <Text style={{ color: '#333', marginRight: 4 }}>{hobby}</Text>
+                                            <TouchableOpacity onPress={() => setHobbies(hobbies.filter((h) => h !== hobby))}>
+                                                <Ionicons name="close-circle" size={18} color="#fb8436" />
+                                            </TouchableOpacity>
+                                        </View>
+                                    ))}
                                 </View>
                             )}
 
@@ -297,6 +501,18 @@ export default function RegisterUser() {
                                 </View>
                             </View>
 
+                            {/* ¿Desea formar parte de media naranja? */}
+                            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                                <Checkbox.Android
+                                    status={deseaMediaNaranja ? 'checked' : 'unchecked'}
+                                    onPress={() => setDeseaMediaNaranja(!deseaMediaNaranja)}
+                                    color="#fb8436"
+                                />
+                                <Text style={{ marginLeft: 8, fontSize: 16 }}>
+                                    ¿Desea formar parte de media naranja?
+                                </Text>
+                            </View>
+
                             <TouchableOpacity
                                 style={[styles.registerButton, !termsAccepted && styles.buttonDisabled]}
                                 onPress={handleSaveUser}
@@ -312,6 +528,20 @@ export default function RegisterUser() {
                                         <Text style={styles.buttonText}>Registrarse</Text>
                                     </View>
                                 )}
+                            </TouchableOpacity>
+
+
+
+                            <TouchableOpacity
+                                style={[styles.registerButton]}
+                                onPress={navigateToHome}
+                            >
+                                
+                                <View style={styles.buttonContent}>
+                                    <Ionicons name="home-outline" size={20} color="#fff" style={styles.buttonIcon} />
+                                    <Text style={styles.buttonText}>Ir al Menú de Apps</Text>
+                                </View>
+                               
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -476,5 +706,20 @@ const styles = StyleSheet.create({
     },
     buttonDisabled: {
         backgroundColor: '#ccc',
-    }
+    },
+    pickerContainer: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        marginBottom: 16,
+        backgroundColor: '#fff',
+        overflow: 'hidden',
+    },
+    picker: {
+        height: 50,
+        color: '#333',
+        fontSize: 16,
+        paddingHorizontal: 10,
+        backgroundColor: '#fff',
+    },
 });

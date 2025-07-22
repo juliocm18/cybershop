@@ -29,4 +29,13 @@ export interface clientProfile {
   avatar_url: string;
   name: string;
   birth_date: string;
+  phone_number: string;
+  email: string;
+  gender: string;
+  sexual_preference: string;
+  profession: string;
+  description: string;
+  zodiac_sign: string;
+  hobbies: string[];
+  accept_media_naranja: boolean;
 }

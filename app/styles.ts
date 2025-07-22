@@ -26,7 +26,7 @@ export const globalStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#ea822c",
-    paddingTop: 35,
+    paddingTop: 50,
   },
   whiteContainer: {
     flex: 1,

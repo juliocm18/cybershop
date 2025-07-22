@@ -3,6 +3,7 @@ import { View, TouchableOpacity, Text } from 'react-native';
 import { Stack, useLocalSearchParams, router } from 'expo-router';
 import { supabase } from '../supabase';
 import { User } from '@supabase/supabase-js';
+import { useAuth } from '../context/AuthContext';
 import { ChatRoom } from './ChatRoom';
 import { LoginModal } from './components/LoginModal';
 import { styles } from './styles';
@@ -18,6 +19,7 @@ export default function ChatRoomScreen() {
   const params = useLocalSearchParams();
   const roomIdParam = params.roomIdParam as string;
   
+  const { session } = useAuth();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [currentRoomId, setCurrentRoomId] = useState<string>(roomIdParam);
@@ -85,64 +87,45 @@ export default function ChatRoomScreen() {
   };
 
   useEffect(() => {
-    // Get initial user
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        setCurrentUser(user);
-        updateUserStatus(user.id, true);
-        fetchPendingInvitations(user.id);
-      } else {
-        setShowLoginModal(true);
-      }
-    });
+    const user = session?.user ?? null;
+    setCurrentUser(user);
+    if (user) {
+      updateUserStatus(user.id, true);
+      fetchPendingInvitations(user.id);
+      setShowLoginModal(false);
+    } else {
+      setShowLoginModal(true);
+    }
+  }, [session]);
 
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      const user = session?.user ?? null;
-      setCurrentUser(user);
-      
-      if (user) {
-        updateUserStatus(user.id, true);
-        fetchPendingInvitations(user.id);
-        setShowLoginModal(false);
-      } else {
-        setShowLoginModal(true);
-      }
-    });
-
+  useEffect(() => {
     // Set up interval to update last_seen
     const statusInterval = setInterval(() => {
       if (currentUser) {
         updateUserStatus(currentUser.id, true);
       }
     }, 30000);
-
-    // Cleanup
     return () => {
-      subscription.unsubscribe();
       clearInterval(statusInterval);
-      if (currentUser) {
-        updateUserStatus(currentUser.id, false);
-      }
     };
-  }, [currentUser?.id]);
+  }, [currentUser]);
 
   // Subscribe to invitations changes
   useEffect(() => {
     if (!currentUser) return;
 
-    // Create a unique channel name with user ID to avoid conflicts
+    // Create a unique channel name per user
     const channelName = `group-invitations-changes-${currentUser.id}`;
-    
-    // First, check if there are existing channels with this name and remove them
+
+    // Remove any existing channel with this topic before creating a new one
     const existingChannels = supabase.getChannels();
     const existingChannel = existingChannels.find(channel => channel.topic === channelName);
     if (existingChannel) {
       supabase.removeChannel(existingChannel);
     }
-    
-    // Now create a new subscription
-    const invitationsSubscription = supabase
+
+    // Create a new channel instance and subscribe
+    const invitationsChannel = supabase
       .channel(channelName)
       .on('postgres_changes', {
         event: '*',
@@ -151,12 +134,12 @@ export default function ChatRoomScreen() {
         filter: `user_id=eq.${currentUser.id}`,
       }, () => {
         fetchPendingInvitations(currentUser.id);
-      })
-      .subscribe();
+      });
+
+    invitationsChannel.subscribe();
 
     return () => {
-      // Use removeChannel for proper cleanup
-      supabase.removeChannel(invitationsSubscription);
+      supabase.removeChannel(invitationsChannel);
     };
   }, [currentUser?.id]);
 
@@ -189,9 +172,9 @@ export default function ChatRoomScreen() {
     setShowGroupsScreen(false);
   };
 
-  const handleCreateGroup = () => {
-    setIsCreateGroupModalVisible(true);
-  };
+  // const handleCreateGroup = () => {
+  //   setIsCreateGroupModalVisible(true);
+  // };
 
   const handleViewInvitations = () => {
     console.log("ChatRoomScreen:handleViewInvitations")

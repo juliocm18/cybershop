@@ -629,7 +629,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwnMess
               <View style={mediaStyles.audioWaveform}>
                 {Array.from({ length: 20 }).map((_, i) => (
                   <View
-                    key={i}
+                    key={`audio-bar-${message.id}-${i}`}
                     style={[
                       mediaStyles.audioWaveformBar,
                       { height: 3 + Math.random() * 12 },

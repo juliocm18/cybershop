@@ -28,8 +28,21 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     padding: 10,
-    marginBottom: 15,
-    borderRadius: 5,
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    marginBottom: 16,
+    backgroundColor: '#fff',
+    overflow: 'hidden',
+  },
+  picker: {
+    height: 50,
+    color: '#333',
+    fontSize: 16,
+    paddingHorizontal: 10,
+    backgroundColor: '#fff',
   },
   socialModaltitle: {
     fontSize: 18,
@@ -103,6 +116,18 @@ export const styles = StyleSheet.create({
     borderRadius: 5,
     width: "45%",
   },
+
+  sexual_preference: {
+    padding: 12,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderRadius: 8,
+    backgroundColor: '#f5f5f5',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   passwordContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -132,8 +157,7 @@ export const styles = StyleSheet.create({
     fontWeight: "bold",
     padding: 10,
   },
+  
 });
 
-export default {
-  styles,
-};
+export default styles;

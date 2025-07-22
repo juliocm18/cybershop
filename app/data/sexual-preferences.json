@@ -1,0 +1,6 @@
+[
+    { "id": "heterosexual", "name": "Heterosexual" },
+    { "id": "homosexual", "name": "Homosexual" },
+    { "id": " bisexual", "name": "Bisexual" },
+    { "id": "otro", "name": "Otro" }
+  ]
