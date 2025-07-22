@@ -53,7 +53,7 @@ function MainLayout() {
 
   useEffect(() => {
     if (!loading && isVideoFinished) {
-      router.replace("/main-menu");
+      router.replace("/locationhome");
     }
   }, [session, loading, isVideoFinished]);
 

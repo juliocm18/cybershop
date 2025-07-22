@@ -22,7 +22,6 @@ const LocationHome = () => {
   const [departments, setDepartments] = useState<string[]>([]);
   const { t } = useTranslation();
   const [clickCount, setClickCount] = useState(0);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (continent) {
@@ -63,7 +62,7 @@ const LocationHome = () => {
       await AsyncStorage.setItem("department", department);
       await AsyncStorage.setItem("country", country?.name || "");
       router.push({
-        pathname: "/home/home",
+        pathname: "/main-menu",
         params: { country: country?.name || "", department },
       });
     } else {

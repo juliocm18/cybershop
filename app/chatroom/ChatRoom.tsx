@@ -57,9 +57,7 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
     
     // Create a unique channel name with room ID to avoid conflicts
     const channelName = `room_messages_${actualRoomId}`;
-    
-    console.log(`Creating subscription for room ${actualRoomId} with channel ${channelName}`);
-    
+        
     // Subscribe to new messages in the room
     const channel = supabase
       .channel(channelName)
@@ -425,14 +423,7 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
     roomPublicName: string;
   }) {
     const roomKey = (roomIdParam ?? roomId) || '';
-
-    //console.log("ChatRoom.tsx:resolveRoom: roomKey:", roomKey)
-    // console.log("roomId", roomId),
-    // console.log("roomIdParam", roomIdParam),
-    // console.log("recipientId", recipientId),
-    // console.log("roomPublicName", roomPublicName);
-    //if (!roomKey) return;
-
+    
     let roomData: RoomResponse | null = null;
 
     if (recipientId) {
@@ -469,10 +460,6 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
       setRoomName(roomDetails.name || 'Chat Room');
     }
   }
-
-
-
-
 
 
   const fetchRoomDetails = async () => {

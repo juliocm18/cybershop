@@ -145,7 +145,6 @@ export default function ChatRoomScreen() {
 
   // Fetch room details when room changes
   useEffect(() => {
-    //console.log("ChatRoomScreen:useEffect: currentRoomId", currentRoomId);
     if (currentRoomId) {
       fetchRoomDetails(currentRoomId);
     }
@@ -177,7 +176,6 @@ export default function ChatRoomScreen() {
   // };
 
   const handleViewInvitations = () => {
-    console.log("ChatRoomScreen:handleViewInvitations")
     setIsInvitationsModalVisible(true);
   };
 

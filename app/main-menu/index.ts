@@ -22,7 +22,7 @@ const MENU_ITEMS: MenuItem[] = [
     icon: 'cart',
     description: 'Busca tiendas, establecimientos, plataformas afiliadas y mucho más.',
     color: '#4a90e2',
-    link: '/shop'
+    link: '/home/home'
     },
   {
     key: 'orders',
@@ -72,7 +72,7 @@ const MenuSquare: React.FC<MenuSquareProps> = ({ item }) => {
     TouchableOpacity,
     {
       style: [styles.square, { backgroundColor: item.color }],
-      onPress: () => router.push(item.link),
+      onPress: () => router.push(item.link as any),
     },
     React.createElement(IconComponent as typeof Ionicons, { name: item.icon as keyof typeof Ionicons.glyphMap, size: 38, color: "#fff", style: styles.icon }),
     React.createElement(Text, { style: styles.title }, item.title),
