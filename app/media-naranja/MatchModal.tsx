@@ -1,6 +1,8 @@
-import React from 'react';
-import { Modal, View, Text, Image, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Modal, View, Text, Image, StyleSheet, TouchableOpacity, Animated, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
+import { supabase } from '../supabase';
+import { useAuth } from '../context/AuthContext';
 
 interface Props {
   visible: boolean;
@@ -11,8 +13,10 @@ interface Props {
 }
 
 export default function MatchModal({ visible, onClose, userPhoto, matchPhoto, matchedProfile }: Props) {
-  const [animation] = React.useState(new Animated.Value(0));
-  const [localVisible, setLocalVisible] = React.useState(false);
+  const [animation] = useState(new Animated.Value(0));
+  const [localVisible, setLocalVisible] = useState(false);
+  const [isCreatingRoom, setIsCreatingRoom] = useState(false);
+  const { session } = useAuth();
   
   
   // Use local state to ensure modal stays visible
@@ -22,7 +26,7 @@ export default function MatchModal({ visible, onClose, userPhoto, matchPhoto, ma
     }
   }, [visible]);
   
-  React.useEffect(() => {
+  useEffect(() => {
     if (localVisible) {
       // Reset and start animation when modal becomes visible
       animation.setValue(0);
@@ -34,18 +38,98 @@ export default function MatchModal({ visible, onClose, userPhoto, matchPhoto, ma
     }
   }, [localVisible]);
   
-  const handleStartChat = () => {
-    // Close the modal first
-    setLocalVisible(false);
-    onClose();
-    
-    // If we have a matched profile, navigate to the chat
-    if (matchedProfile) {
-      // Navigate to chat with this user
-      setTimeout(() => {
-        // Navigate to the chatroom with the matched user
-        router.push('/chatroom');
-      }, 300); // Small delay to allow modal to close smoothly
+  // Function to find or create an individual room between two users
+  const findOrCreateIndividualRoom = async (currentUserId: string, recipientId: string) => {
+    try {
+      // First check if a room already exists between these users
+      const { data: existingRoom, error: findError } = await supabase
+        .from('rooms')
+        .select(`
+          id,
+          name,
+          type,
+          created_by,
+          recipient_id,
+          is_private
+        `)
+        .eq('type', 'individual')
+        .or(`and(created_by.eq.${currentUserId},recipient_id.eq.${recipientId}),and(created_by.eq.${recipientId},recipient_id.eq.${currentUserId})`)
+        .single();
+
+      if (findError && findError.code !== 'PGRST116') {
+        console.error('Error finding individual room:', findError);
+        return null;
+      }
+
+      // If room exists, return it
+      if (existingRoom) return existingRoom.id;
+
+      // Otherwise create a new room
+      const { data: newRoom, error: createError } = await supabase
+        .from('rooms')
+        .insert({
+          type: 'individual',
+          created_by: currentUserId,
+          recipient_id: recipientId,
+          is_private: true
+        })
+        .select()
+        .single();
+
+      if (createError || !newRoom) {
+        console.error('Error creating individual room:', createError);
+        return null;
+      }
+
+      return newRoom.id;
+    } catch (error) {
+      console.error('Error in findOrCreateIndividualRoom:', error);
+      return null;
+    }
+  };
+  
+  const handleStartChat = async () => {
+    // If we have a matched profile and current user, create/find room and navigate
+    if (matchedProfile && session?.user) {
+      setIsCreatingRoom(true);
+      
+      try {
+        // Find or create a room between the current user and the matched user
+        const roomId = await findOrCreateIndividualRoom(session.user.id, matchedProfile.id);
+        
+        // Close the modal
+        setLocalVisible(false);
+        onClose();
+        
+        // Small delay to allow modal to close smoothly
+        setTimeout(() => {
+          setIsCreatingRoom(false);
+          
+          // Navigate to the chatroom with the matched user and pass necessary parameters
+          if (roomId) {
+            router.push({
+              pathname: '/chatroom',
+              params: {
+                roomIdParam: roomId,
+                recipientId: matchedProfile.id,
+                chatType: 'individual'
+              }
+            });
+          } else {
+            // Handle error - could not create room
+            console.error('Could not create or find chat room');
+          }
+        }, 300);
+      } catch (error) {
+        console.error('Error starting chat:', error);
+        setIsCreatingRoom(false);
+        setLocalVisible(false);
+        onClose();
+      }
+    } else {
+      // Just close the modal if we don't have necessary data
+      setLocalVisible(false);
+      onClose();
     }
   };
   
@@ -98,10 +182,22 @@ export default function MatchModal({ visible, onClose, userPhoto, matchPhoto, ma
           </View>
           <Text style={styles.message}>Cuando ambos dan like, se prende la magia y se desbloquea el chat.</Text>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={handleStartChat}>
-              <Text style={styles.buttonText}>Empezar conversación</Text>
+            <TouchableOpacity 
+              style={styles.button} 
+              onPress={handleStartChat}
+              disabled={isCreatingRoom}
+            >
+              {isCreatingRoom ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Empezar conversación</Text>
+              )}
             </TouchableOpacity>
-            <TouchableOpacity style={styles.secondaryButton} onPress={handleClose}>
+            <TouchableOpacity 
+              style={styles.secondaryButton} 
+              onPress={handleClose}
+              disabled={isCreatingRoom}
+            >
               <Text style={styles.secondaryButtonText}>Seguir explorando</Text>
             </TouchableOpacity>
           </View>

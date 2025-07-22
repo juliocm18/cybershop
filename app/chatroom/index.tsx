@@ -18,13 +18,15 @@ import GroupsScreen from './GroupsScreen';
 export default function ChatRoomScreen() {
   const params = useLocalSearchParams();
   const roomIdParam = params.roomIdParam as string;
+  const recipientIdParam = params.recipientId as string;
+  const chatTypeParam = params.chatType as 'group' | 'individual';
   
   const { session } = useAuth();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [currentRoomId, setCurrentRoomId] = useState<string>(roomIdParam);
-  const [chatType, setChatType] = useState<'group' | 'individual'>('group');
-  const [selectedRecipient, setSelectedRecipient] = useState<string | undefined>();
+  const [chatType, setChatType] = useState<'group' | 'individual'>(chatTypeParam || 'group');
+  const [selectedRecipient, setSelectedRecipient] = useState<string | undefined>(recipientIdParam);
   const [isCreateGroupModalVisible, setIsCreateGroupModalVisible] = useState(false);
   const [isInvitationsModalVisible, setIsInvitationsModalVisible] = useState(false);
   const [isGroupMembersModalVisible, setIsGroupMembersModalVisible] = useState(false);
