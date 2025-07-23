@@ -7,15 +7,12 @@ import {
   ActivityIndicator,
   Platform,
   Keyboard,
-  SafeAreaView,
-  KeyboardAvoidingView,
   Modal,
   Text,
   Alert,
-  Linking
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
@@ -45,7 +42,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled, r
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
@@ -545,7 +541,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled, r
           <View style={styles.mediaOptionsContainer}>
             <TouchableOpacity style={styles.mediaOption} onPress={pickImage}>
               <Ionicons name="image-outline" size={24} color="#fb8436" />
-              <Text style={styles.mediaOptionText}>Image</Text>
+              <Text style={styles.mediaOptionText}>Imagen</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.mediaOption} onPress={pickDocument}>
@@ -565,7 +561,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled, r
 
             <TouchableOpacity style={styles.mediaOption} onPress={shareLocation}>
               <Ionicons name="location-outline" size={24} color="#fb8436" />
-              <Text style={styles.mediaOptionText}>Location</Text>
+              <Text style={styles.mediaOptionText}>Mapa</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>

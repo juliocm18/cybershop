@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 30,
-    marginTop: Platform.OS === 'ios' ? 140 : 40,
+    marginTop: Platform.OS === 'ios' ? 140 : 100,
   },
   profileHeader: {
     flexDirection: 'row',

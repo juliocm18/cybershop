@@ -4,29 +4,81 @@ import { supabase } from '../../supabase';
 import { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 
-export const OnlineUsersDrawer: React.FC<OnlineUsersDrawerProps> = ({
+export const OnlineUsersDrawer: React.FC<OnlineUsersDrawerProps & { roomId?: string }> = ({
   isOpen,
   onClose,
   onUserSelect,
   currentUserId,
-  chatType
+  chatType,
+  roomId
 }) => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchOnlineUsers();
-  }, []);
+    if (isOpen) {
+      fetchOnlineUsers();
+    }
+  }, [isOpen]);
 
   const fetchOnlineUsers = async () => {
+    setLoading(true);
     try {
+      let relevantUserIds: string[] = [];
+      
+      // 1. Get users from the same chat group if we're in a group chat
+      if (chatType === 'group' && roomId) {
+        const { data: groupMembers, error: groupError } = await supabase
+          .from('room_participants')
+          .select('user_id')
+          .eq('room_id', roomId);
+          
+        if (groupError) {
+          console.error('Error fetching group members:', groupError);
+        } else if (groupMembers) {
+          relevantUserIds = [...relevantUserIds, ...groupMembers.map(member => member.user_id)];
+        }
+      }
+      
+      // 2. Get users with previous chat history (individual rooms)
+      const { data: individualRooms, error: roomsError } = await supabase
+        .from('rooms')
+        .select('created_by, recipient_id')
+        .eq('type', 'individual')
+        .or(`created_by.eq.${currentUserId},recipient_id.eq.${currentUserId}`);
+      
+      if (roomsError) {
+        console.error('Error fetching chat history:', roomsError);
+      } else if (individualRooms) {
+        individualRooms.forEach(room => {
+          if (room.created_by === currentUserId) {
+            relevantUserIds.push(room.recipient_id);
+          } else if (room.recipient_id === currentUserId) {
+            relevantUserIds.push(room.created_by);
+          }
+        });
+      }
+      
+      // Remove duplicates
+      relevantUserIds = [...new Set(relevantUserIds)];
+      
+      // Filter out current user
+      relevantUserIds = relevantUserIds.filter(id => id !== currentUserId);
+      
+      if (relevantUserIds.length === 0) {
+        setUsers([]);
+        setLoading(false);
+        return;
+      }
+      
+      // 3. Get profile information for these users
       const { data: profiles, error } = await supabase
         .from('profiles')
         .select('*')
-        .neq('id', currentUserId);
+        .in('id', relevantUserIds);
 
       if (error) {
-        console.error('Error fetching online users:', error);
+        console.error('Error fetching user profiles:', error);
         return;
       }
 

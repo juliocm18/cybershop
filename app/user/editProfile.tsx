@@ -367,9 +367,7 @@ export default function EditProfile() {
     >
       <AppHeader userEmail={session?.user?.email || ''} showBackButton={true} />
       
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.pageTitle}>Editar Perfil</Text>
-        
+      <ScrollView contentContainerStyle={styles.scrollContent}>        
         {validationError && (
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>{validationError}</Text>
@@ -636,7 +634,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 20,
     paddingBottom: 40,
-    paddingTop: 70, 
+    paddingTop: 120, 
   },
   pageTitle: {
     fontSize: 24,

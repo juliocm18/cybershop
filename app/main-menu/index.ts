@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions, Alert } from 'react-native';
 import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { router, useRouter } from 'expo-router';
 
@@ -31,7 +31,7 @@ const MENU_ITEMS: MenuItem[] = [
     icon: 'receipt-long',
     description: 'Conecta con muchas más personas de tu localidad o en el mundo.',
     color: '#50e3c2',
-    link: '/chat'
+    link: '/chatroom'
   },
   {
     key: 'profile',
@@ -47,9 +47,9 @@ const MENU_ITEMS: MenuItem[] = [
     title: 'Soporte',
     iconType: 'Ionicons',
     icon: 'help-circle',
-    description: 'Get help',
+    description: 'Manda un mensaje al soporte.',
     color: '#d0021b',
-    link: '/support'
+    link: ''
   },
 ];
 
@@ -72,7 +72,13 @@ const MenuSquare: React.FC<MenuSquareProps> = ({ item }) => {
     TouchableOpacity,
     {
       style: [styles.square, { backgroundColor: item.color }],
-      onPress: () => router.push(item.link as any),
+      onPress: () => {
+        if (item.link === '') {
+          Alert.alert("Aviso","Estamos trabajando en esta funcionalidad");
+        } else {
+          router.push(item.link as any);
+        }
+      },
     },
     React.createElement(IconComponent as typeof Ionicons, { name: item.icon as keyof typeof Ionicons.glyphMap, size: 38, color: "#fff", style: styles.icon }),
     React.createElement(Text, { style: styles.title }, item.title),

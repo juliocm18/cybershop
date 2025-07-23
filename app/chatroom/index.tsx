@@ -197,7 +197,7 @@ export default function ChatRoomScreen() {
           onPress={navigateToGroups}
         >
           <Ionicons name="people" size={24} color="#fb8436" />
-          <Text style={styles.headerButtonText}>Groups</Text>
+          <Text style={styles.headerButtonText}>Grupos</Text>
         </TouchableOpacity>
               
         
