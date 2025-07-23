@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   FlatList,
   ActivityIndicator,
   Text,
   TouchableOpacity,
-  Platform,
   SafeAreaView,
-  KeyboardAvoidingView,
   StyleSheet,
   Alert
 } from 'react-native';
@@ -70,7 +68,6 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
           filter: `room_id=eq.${actualRoomId}`
         },
         (payload) => {
-          //console.log('New message received:', payload);
           // Fetch the complete message with user info
           const fetchNewMessage = async () => {
             const { data: newMessage } = await supabase
@@ -106,7 +103,6 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
 
     return () => {
       // Use removeChannel for proper cleanup
-      console.log(`Removing subscription for room ${actualRoomId} with channel ${channelName}`);
       supabase.removeChannel(channel);
     };
   }, [actualRoomId]);
@@ -127,10 +123,7 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
   const fetchMessages = async (isLoadingMore = false) => {
     try {
       if (!actualRoomId) {
-        console.log('No valid room ID available yet');
         return;
-      } else {
-        console.log('Fetching messages for room ID:', actualRoomId);
       }
 
       if (isLoadingMore) {
@@ -218,8 +211,6 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
     locationInfo?: LocationInfo
   ) => {
     try {
-      console.log('Sending message:', content, 'type:', messageType);
-
       if (!actualRoomId) {
         console.error('No valid room ID available');
         return;
@@ -318,7 +309,6 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
     };
   }
 
-
   async function findOrCreateIndividualRoom(currentUserId: string, recipientId: string): Promise<any | null> {
     const { data: existingRoom, error: findError } = await supabase
       .from('rooms')
@@ -408,7 +398,6 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
     }
   }
 
-
   async function resolveRoom({
     currentUser,
     roomIdParam,
@@ -467,12 +456,6 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
       const department = (await AsyncStorage.getItem("department"));
       const country = (await AsyncStorage.getItem("country"));
       const roomPublicName = `${country} - ${department} Chat`;
-
-      // console.log("ChatRoom.tsx:fetchRoomDetails: roomPublicName:", roomPublicName)
-      // console.log("ChatRoom.tsx:fetchRoomDetails: roomIdParam:", roomIdParam)
-      // console.log("ChatRoom.tsx:fetchRoomDetails: roomId:", roomId)
-      // console.log("ChatRoom.tsx:fetchRoomDetails: recipientId:", recipientId)
-
       await resolveRoom({
         currentUser,
         roomIdParam,
@@ -515,7 +498,6 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
 
   const renderMessage = ({ item }: { item: Message }) => {
     const isOwnMessage = item.user_id === currentUser.id;
-    //console.log("item", item);
     return (
       <MessageBubble
         message={item}
