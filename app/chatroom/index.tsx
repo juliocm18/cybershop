@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import CreateGroupModal from './components/CreateGroupModal';
 import GroupInvitationsModal from './components/GroupInvitationsModal';
 import GroupMembersModal from './components/GroupMembersModal';
+import MyChatsModal from './components/MyChatsModal';
 import GroupsScreen from './GroupsScreen';
 
 export default function ChatRoomScreen() {
@@ -30,6 +31,7 @@ export default function ChatRoomScreen() {
   const [isCreateGroupModalVisible, setIsCreateGroupModalVisible] = useState(false);
   const [isInvitationsModalVisible, setIsInvitationsModalVisible] = useState(false);
   const [isGroupMembersModalVisible, setIsGroupMembersModalVisible] = useState(false);
+  const [isMyChatsModalVisible, setIsMyChatsModalVisible] = useState(false);
   const [pendingInvitationsCount, setPendingInvitationsCount] = useState(0);
   const [currentRoomIsPrivate, setCurrentRoomIsPrivate] = useState(false);
   const [roomDetails, setRoomDetails] = 
@@ -185,12 +187,31 @@ export default function ChatRoomScreen() {
     setIsGroupMembersModalVisible(true);
   };
 
+  const handleViewMyChats = () => {
+    setIsMyChatsModalVisible(true);
+  };
+
+  const handleChatSelected = (roomId: string, chatType: 'group' | 'individual', recipientId?: string) => {
+    setCurrentRoomId(roomId);
+    setChatType(chatType);
+    setSelectedRecipient(recipientId);
+    setShowGroupsScreen(false);
+  };
+
   const renderHeaderButtons = () => {
     if (!currentUser) return null;
-    //console.log("index:renderHeaderButtons: roomDetails", roomDetails)
     
     return (
       <View style={styles.headerButtonsContainer}>
+        <TouchableOpacity
+          key="my-chats-button"
+          style={styles.headerButton}
+          onPress={handleViewMyChats}
+        >
+          <Ionicons name="chatbubbles" size={24} color="#fb8436" />
+          <Text style={styles.headerButtonText}>Mis Chats</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity
           key="groups-button"
           style={styles.headerButton}
@@ -200,7 +221,6 @@ export default function ChatRoomScreen() {
           <Text style={styles.headerButtonText}>Grupos</Text>
         </TouchableOpacity>
               
-        
         <TouchableOpacity
           key="invitations-button"
           style={styles.headerButton}
@@ -302,6 +322,13 @@ export default function ChatRoomScreen() {
               setShowGroupsScreen(false);
               fetchPendingInvitations(currentUser.id);
             }}
+          />
+
+          <MyChatsModal
+            isVisible={isMyChatsModalVisible}
+            onClose={() => setIsMyChatsModalVisible(false)}
+            currentUserId={currentUser.id}
+            onChatSelected={handleChatSelected}
           />
         </>
       )}
