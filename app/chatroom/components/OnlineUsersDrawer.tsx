@@ -22,9 +22,14 @@ export const OnlineUsersDrawer: React.FC<OnlineUsersDrawerProps & { roomId?: str
   }, [isOpen]);
 
   const fetchOnlineUsers = async () => {
+    console.log('Fetching online users...');
     setLoading(true);
     try {
       let relevantUserIds: string[] = [];
+      console.log('Current user ID:', currentUserId);
+      console.log('Chat type:', chatType);
+      console.log('Room ID:', roomId);
+      
       
       // 1. Get users from the same chat group if we're in a group chat
       if (chatType === 'group' && roomId) {
@@ -32,6 +37,8 @@ export const OnlineUsersDrawer: React.FC<OnlineUsersDrawerProps & { roomId?: str
           .from('room_participants')
           .select('user_id')
           .eq('room_id', roomId);
+
+        console.log('Group members:', groupMembers);
           
         if (groupError) {
           console.error('Error fetching group members:', groupError);

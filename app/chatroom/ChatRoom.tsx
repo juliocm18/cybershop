@@ -638,6 +638,7 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
         onUserSelect={handleParticipantSelect}
         currentUserId={currentUser.id}
         chatType={chatType}
+        roomId={actualRoomId || roomId}
       />
 
       <UserAliasModal
