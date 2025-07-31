@@ -136,7 +136,7 @@ export default function MyChatsModal({
       // Get last messages for each room
       const { data: lastMessages, error: messagesError } = await supabase
         .from('messages')
-        .select('room_id, content, created_at, type')
+        .select('room_id, content, created_at, message_type')
         .in('room_id', roomIds)
         .order('created_at', { ascending: false });
 
@@ -165,7 +165,7 @@ export default function MyChatsModal({
         // Format last message based on type
         let formattedLastMessage = '';
         if (lastMessage) {
-          switch(lastMessage.type) {
+          switch(lastMessage.message_type) {
             case 'text':
               formattedLastMessage = lastMessage.content;
               break;
