@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import LoginModal from './components/LoginModal';
-import { View, StyleSheet, Animated, Platform, Text } from 'react-native';
+import { View, StyleSheet, Animated, Platform, Text, TouchableOpacity } from 'react-native';
 import AppHeader from './components/AppHeader';
 import { getProfilesFromSupabase, handleLikeSupabase, handleNopeSupabase } from './data/profiles';
 import ProfileCard from './components/ProfileCard';
@@ -41,19 +41,19 @@ export default function Home() {
   // Function to fetch user profile data
   const fetchUserProfile = async () => {
     if (!session?.user?.id) return;
-    
+
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', session.user.id)
         .single();
-        
+
       if (error) {
         console.error("Error fetching user profile:", error.message);
         return;
       }
-      
+
       if (profile) {
         setUserLoggedInfo(profile);
       }
@@ -72,18 +72,18 @@ export default function Home() {
     if (session) {
       setUserLoggedIn(true);
       setLoginModalVisible(false);
-      
+
       // Fetch user profile data when session is available
       fetchUserProfile();
     } else {
       setUserLoggedIn(false);
       setLoginModalVisible(true);
     }
-    
+
     // Get userId and sexual preference
     const userId = session?.user?.id;
     const userSexualPreference = session?.user?.user_metadata?.sexual_preference;
-    
+
     getProfilesFromSupabase(userId, userSexualPreference).then((data) => {
       setProfiles(data);
       setLoadingProfiles(false);
@@ -115,6 +115,12 @@ export default function Home() {
     return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <AppHeader userEmail={userEmail} showBackButton={true} />
       <View style={{ marginTop: 20 }}><Text>No hay perfiles disponibles.</Text></View>
+      <TouchableOpacity
+        style={styles.matchProfilesButton}
+        onPress={() => router.push('/media-naranja/MatchProfiles')}
+      >
+        <Text style={styles.matchProfilesButtonText}>Ver Matches</Text>
+      </TouchableOpacity>
     </View>;
   }
 
@@ -132,7 +138,7 @@ export default function Home() {
           .select('*')
           .eq('id', userId)
           .single();
-          
+
         if (error) {
           console.error("Error fetching user profile in handleLike:", error.message);
         } else if (profile) {
@@ -278,6 +284,12 @@ export default function Home() {
           <ProfileDetail profile={current} onBack={handleBack} userEmail={userEmail} />
         )}
       </View>
+      <TouchableOpacity
+        style={styles.matchProfilesButton}
+        onPress={() => router.push('/media-naranja/MatchProfiles')}
+      >
+        <Text style={styles.matchProfilesButtonText}>Ver Matches</Text>
+      </TouchableOpacity>
 
       {/* Render MatchModal outside of other views to avoid z-index issues */}
       <MatchModal
@@ -298,10 +310,30 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    marginTop: Platform.OS === 'ios' ? 70 : 40, // match AppHeader height
+    marginTop: Platform.OS === 'ios' ? 20 : 20, // match AppHeader height
     paddingHorizontal: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 24,
+    paddingVertical: 5,
+  },
+  matchProfilesButton: {
+    marginTop: 20,
+    alignSelf: 'center',
+    marginBottom: 60,
+    backgroundColor: '#ff9800',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 25,
+    zIndex: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  matchProfilesButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
 });
