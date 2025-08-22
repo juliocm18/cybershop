@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, Alert, ActivityIndicator, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { supabase } from '../supabase';
 import { useAuth } from '../context/AuthContext';
@@ -232,7 +232,11 @@ export default function MatchProfiles() {
 
   return (
     <View style={styles.container}>
-      <AppHeader userEmail={userEmail} showBackButton={true} />
+      <AppHeader 
+        userEmail={userEmail} 
+        showBackButton={true} 
+        onBack={() => router.push('/media-naranja/Home')}
+      />
       <Text style={styles.title}>Mis Matches</Text>
       
       {loading ? (
@@ -266,8 +270,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginTop: 80,
-    marginBottom: 16,
+    marginTop: 120,
     textAlign: 'center',
     color: '#333',
   },
@@ -339,7 +342,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    paddingTop: Platform.OS === 'ios' ? 24 : 0,
   },
   emptyText: {
     fontSize: 18,

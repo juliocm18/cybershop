@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Animated, TouchableOpacity, Platform, Text, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
+import BackButton from '../../components/BackButton';
 
 interface AppHeaderProps {
   userEmail?: string;
@@ -41,9 +42,11 @@ const { signOut } = useAuth();
     <View style={styles.header}>
       <View style={styles.leftSection}>
         {showBackButton && (
-          <TouchableOpacity style={styles.backButton} onPress={() => onBack ? onBack() : router.back()}>
-            <Animated.Text style={styles.backButtonText}>{Platform.OS === 'ios' ? '‹' : '<'}</Animated.Text>
-          </TouchableOpacity>
+          <BackButton 
+            route="/main-menu"
+            onPress={onBack ? onBack : undefined}
+            style={{ marginRight: 12 }}
+          />
         )}
       </View>
       
@@ -68,7 +71,7 @@ const { signOut } = useAuth();
 const styles = StyleSheet.create({
   header: {
     width: '100%',
-    paddingTop: Platform.OS === 'ios' ? 54 : 24,
+    paddingTop: Platform.OS === 'ios' ? 54 : 40,
     paddingBottom: 16,
     paddingHorizontal: 16,
     backgroundColor: '#fff',

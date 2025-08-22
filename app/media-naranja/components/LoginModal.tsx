@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
 
 interface LoginModalProps {
   visible: boolean;
@@ -12,6 +13,7 @@ interface LoginModalProps {
 const LoginModal: React.FC<LoginModalProps> = ({ visible, onLogin, onClose, onGoToRegister, error }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const router = useRouter();
 
   return (
     <Modal
@@ -44,8 +46,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ visible, onLogin, onClose, onGo
           <Text style={styles.link}>
             ¿No tienes una cuenta? <Text style={styles.linkText} onPress={() => onGoToRegister()}>Regístrate</Text>
           </Text>
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>Cerrar</Text>
+          <TouchableOpacity style={styles.mainMenuButton} onPress={() => router.push('/main-menu')}>
+            <Text style={styles.mainMenuButtonText}>Ir al Menú Principal</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -93,12 +95,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  closeButton: {
-    marginTop: 10,
+  mainMenuButton: {
+    marginTop: 15,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
   },
-  closeButtonText: {
-    color: '#d0021b',
+  mainMenuButtonText: {
+    color: '#333',
     fontSize: 14,
+    fontWeight: '500',
   },
   error: {
     color: '#d0021b',
