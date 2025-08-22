@@ -232,7 +232,8 @@ const DynamicTabsScreen = () => {
   );
   /* Tabs management */
   return (
-    <View style={[globalStyles.container]}>
+    <View style={[globalStyles.container, 
+      { paddingTop: 40}]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingTop: 10 }}>
         <BackButton 
           route="/main-menu" 
