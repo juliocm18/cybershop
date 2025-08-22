@@ -46,8 +46,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ visible, onLogin, onClose, onGo
           <Text style={styles.link}>
             ¿No tienes una cuenta? <Text style={styles.linkText} onPress={() => onGoToRegister()}>Regístrate</Text>
           </Text>
-          <TouchableOpacity style={styles.mainMenuButton} onPress={() => router.push('/main-menu')}>
-            <Text style={styles.mainMenuButtonText}>Ir al Menú Principal</Text>
+          <TouchableOpacity style={styles.mainMenuButton} onPress={() => onClose()}>
+            <Text style={styles.mainMenuButtonText}>Cerrar</Text>
           </TouchableOpacity>
         </View>
       </View>

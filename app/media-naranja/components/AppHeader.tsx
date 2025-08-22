@@ -22,7 +22,7 @@ const { signOut } = useAuth();
               style: 'cancel'
             },
             {
-              text: 'Cerrar Sesión',
+              text: 'Salir',
               style: 'destructive',
               onPress: async () => {
                 try {
@@ -31,6 +31,8 @@ const { signOut } = useAuth();
                 } catch (error) {
                   console.error('Error al cerrar sesión:', error);
                   Alert.alert('Error', 'No se pudo cerrar sesión. Por favor, intenta de nuevo.');
+                  // Even if there's an error, redirect to main menu
+                  router.replace('/main-menu');
                 }
               }
             }

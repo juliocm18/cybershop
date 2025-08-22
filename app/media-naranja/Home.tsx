@@ -63,40 +63,42 @@ export default function Home() {
   };
 
   useEffect(() => {
-    setLoadingProfiles(true);
     // Set session loading false when session is available (not undefined)
     if (session !== undefined) {
       setSessionLoading(false);
     }
+    
     // Check if session exists
     if (session) {
       setUserLoggedIn(true);
       setLoginModalVisible(false);
+      setLoadingProfiles(true);
 
       // Fetch user profile data when session is available
       fetchUserProfile();
-    } else {
+      
+      // Get userId and sexual preference
+      const userId = session.user.id;
+      const userSexualPreference = session.user.user_metadata?.sexual_preference;
+
+      getProfilesFromSupabase(userId, userSexualPreference).then((data) => {
+        setProfiles(data);
+        setLoadingProfiles(false);
+      });
+    } else if (session === null) {
+      // User is definitely logged out - reset all states and redirect
       setUserLoggedIn(false);
-      setLoginModalVisible(true);
-    }
-
-    // Get userId and sexual preference
-    const userId = session?.user?.id;
-    const userSexualPreference = session?.user?.user_metadata?.sexual_preference;
-
-    getProfilesFromSupabase(userId, userSexualPreference).then((data) => {
-      setProfiles(data);
+      setLoginModalVisible(false);
+      setUserLoggedInfo(null);
+      setProfiles([]);
       setLoadingProfiles(false);
-    });
-  }, [session]);
-
-  useEffect(() => {
-    const user = session?.user ?? null;
-
-    if (user) {
-      setUserLoggedIn(true);
-    } else {
-      setUserLoggedIn(false);
+      setIndex(0);
+      setShowDetail(false);
+      setMatchVisible(false);
+      setMatchedProfile(null);
+      setLoginError(undefined);
+      // Redirect to main menu after logout
+      router.replace('/main-menu');
     }
   }, [session]);
 

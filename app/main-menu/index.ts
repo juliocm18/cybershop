@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions, Alert } from 'react-native';
 import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { router, useRouter } from 'expo-router';
+import { useAuth } from '../context/AuthContext';
+import LoginModal from '../media-naranja/components/LoginModal';
+import { supabase } from '../supabase';
 
 // Define your menu items here
 interface MenuItem {
@@ -64,9 +67,10 @@ const ITEM_SIZE = (Dimensions.get('window').width - 48) / numColumns;
 
 interface MenuSquareProps {
   item: MenuItem;
+  onMediaNaranjaPress: () => void;
 }
 
-const MenuSquare: React.FC<MenuSquareProps> = ({ item }) => {
+const MenuSquare: React.FC<MenuSquareProps> = ({ item, onMediaNaranjaPress }) => {
   const IconComponent = ICON_MAP[item.iconType];
   return React.createElement(
     TouchableOpacity,
@@ -75,6 +79,8 @@ const MenuSquare: React.FC<MenuSquareProps> = ({ item }) => {
       onPress: () => {
         if (item.link === '') {
           Alert.alert("Aviso","Estamos trabajando en esta funcionalidad");
+        } else if (item.key === 'profile') {
+          onMediaNaranjaPress();
         } else {
           router.push(item.link as any);
         }
@@ -88,6 +94,44 @@ const MenuSquare: React.FC<MenuSquareProps> = ({ item }) => {
 
 const MainMenu: React.FC = () => {
   const router = useRouter();
+  const { session } = useAuth();
+  const [loginModalVisible, setLoginModalVisible] = useState(false);
+  const [loginError, setLoginError] = useState<string | undefined>(undefined);
+
+  const handleMediaNaranjaPress = () => {
+    if (session) {
+      router.push('/media-naranja/Home');
+    } else {
+      setLoginModalVisible(true);
+    }
+  };
+
+  const handleLogin = async (username: string, password: string) => {
+    if (!username || !password) {
+      setLoginError('Campos Obligatorios');
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: username,
+        password: password,
+      });
+
+      if (error) {
+        setLoginError('Usuario o contraseña incorrectos');
+        return;
+      }
+
+      if (data.user) {
+        setLoginModalVisible(false);
+        setLoginError(undefined);
+        router.push('/media-naranja/Home');
+      }
+    } catch (error) {
+      setLoginError('Error al iniciar sesión');
+    }
+  };
 
   return React.createElement(
     View,
@@ -101,14 +145,24 @@ const MainMenu: React.FC = () => {
       FlatList as new () => FlatList<MenuItem>,
       {
         data: MENU_ITEMS,
-        renderItem: ({ item }: { item: MenuItem }) => React.createElement(MenuSquare, { item }),
+        renderItem: ({ item }: { item: MenuItem }) => React.createElement(MenuSquare, { item, onMediaNaranjaPress: handleMediaNaranjaPress }),
         keyExtractor: (item: MenuItem) => item.key,
         numColumns: numColumns,
         contentContainerStyle: styles.menuGrid,
         columnWrapperStyle: styles.row,
         showsVerticalScrollIndicator: false,
       }
-    )
+    ),
+    React.createElement(LoginModal, {
+      visible: loginModalVisible,
+      onLogin: handleLogin,
+      onClose: () => setLoginModalVisible(false),
+      onGoToRegister: () => {
+        setLoginModalVisible(false);
+        router.push('/user/registerUser');
+      },
+      error: loginError
+    })
   );
 };
 
