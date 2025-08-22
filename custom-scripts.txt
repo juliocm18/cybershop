@@ -3,7 +3,6 @@ eas login
 eas build:configure
 
 
-
 Generra APK con EXPO
 eas build --platform android --profile preview
 
@@ -21,4 +20,23 @@ Color primario para letras:
 
 ---------------------------
 
-npx expo prebuild
+npx expo Generar APK y ver logs Android
+-------------------------------------
+Para ver los android devices conectados:
+adb devices
+
+
+
+npx expo run:android
+
+npx react-native log-android
+
+adb logcat *:E
+
+--------------------------
+
+generar el .aab para produccion:
+npx eas build -p android --profile production
+
+
+

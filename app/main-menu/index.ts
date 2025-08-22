@@ -46,7 +46,7 @@ const MENU_ITEMS: MenuItem[] = [
     key: 'support',
     title: 'Soporte',
     iconType: 'Ionicons',
-    icon: 'help-circle',
+    icon: 'help-buoy',
     description: 'Manda un mensaje al soporte.',
     color: '#d0021b',
     link: ''

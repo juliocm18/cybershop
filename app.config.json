@@ -22,6 +22,8 @@
     },
     "android": {
       "package": "com.burbitstudio.mallcybershop",
+      "versionCode": 1,
+      "version": "1.0.0",
       "permissions": [
         "CAMERA",
         "MEDIA_LIBRARY",
