@@ -68,9 +68,10 @@ const ITEM_SIZE = (Dimensions.get('window').width - 48) / numColumns;
 interface MenuSquareProps {
   item: MenuItem;
   onMediaNaranjaPress: () => void;
+  onChatPress: () => void;
 }
 
-const MenuSquare: React.FC<MenuSquareProps> = ({ item, onMediaNaranjaPress }) => {
+const MenuSquare: React.FC<MenuSquareProps> = ({ item, onMediaNaranjaPress, onChatPress }) => {
   const IconComponent = ICON_MAP[item.iconType];
   return React.createElement(
     TouchableOpacity,
@@ -81,6 +82,8 @@ const MenuSquare: React.FC<MenuSquareProps> = ({ item, onMediaNaranjaPress }) =>
           Alert.alert("Aviso","Estamos trabajando en esta funcionalidad");
         } else if (item.key === 'profile') {
           onMediaNaranjaPress();
+        } else if (item.key === 'orders') {
+          onChatPress();
         } else {
           router.push(item.link as any);
         }
@@ -101,6 +104,14 @@ const MainMenu: React.FC = () => {
   const handleMediaNaranjaPress = () => {
     if (session) {
       router.push('/media-naranja/Home');
+    } else {
+      setLoginModalVisible(true);
+    }
+  };
+
+  const handleChatPress = () => {
+    if (session) {
+      router.push('/chatroom');
     } else {
       setLoginModalVisible(true);
     }
@@ -145,7 +156,7 @@ const MainMenu: React.FC = () => {
       FlatList as new () => FlatList<MenuItem>,
       {
         data: MENU_ITEMS,
-        renderItem: ({ item }: { item: MenuItem }) => React.createElement(MenuSquare, { item, onMediaNaranjaPress: handleMediaNaranjaPress }),
+        renderItem: ({ item }: { item: MenuItem }) => React.createElement(MenuSquare, { item, onMediaNaranjaPress: handleMediaNaranjaPress, onChatPress: handleChatPress }),
         keyExtractor: (item: MenuItem) => item.key,
         numColumns: numColumns,
         contentContainerStyle: styles.menuGrid,

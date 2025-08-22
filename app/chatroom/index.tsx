@@ -5,7 +5,6 @@ import { supabase } from '../supabase';
 import { User } from '@supabase/supabase-js';
 import { useAuth } from '../context/AuthContext';
 import { ChatRoom } from './ChatRoom';
-import { LoginModal } from './components/LoginModal';
 import { styles } from './styles';
 import { UserProfile } from './types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,7 +23,6 @@ export default function ChatRoomScreen() {
   
   const { session } = useAuth();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const [currentRoomId, setCurrentRoomId] = useState<string>(roomIdParam);
   const [chatType, setChatType] = useState<'group' | 'individual'>(chatTypeParam || 'group');
   const [selectedRecipient, setSelectedRecipient] = useState<string | undefined>(recipientIdParam);
@@ -96,9 +94,9 @@ export default function ChatRoomScreen() {
     if (user) {
       updateUserStatus(user.id, true);
       fetchPendingInvitations(user.id);
-      setShowLoginModal(false);
     } else {
-      setShowLoginModal(true);
+      // Redirect to main menu if not authenticated
+      router.replace('/main-menu');
     }
   }, [session]);
 
@@ -154,9 +152,6 @@ export default function ChatRoomScreen() {
     }
   }, [currentRoomId]);
 
-  const handleLoginSuccess = async (userId: string) => {
-    await updateUserStatus(userId, true);
-  };
 
   const handleParticipantSelect = (user: UserProfile & { roomId: string }) => {
     //console.log("Participant selected:", user);
@@ -266,12 +261,6 @@ export default function ChatRoomScreen() {
             </TouchableOpacity>
           ) : undefined,
         }}
-      />
-      
-      <LoginModal 
-        isVisible={showLoginModal} 
-        onLoginSuccess={handleLoginSuccess}
-        onClose={() => setShowLoginModal(false)}
       />
 
       {currentUser && (
