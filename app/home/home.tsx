@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   FlatList
 } from "react-native";
+import BackButton from '../components/BackButton';
 import { handleLinkPress, getDeviceIdentifier } from "../functions";
 import { useRouter } from "expo-router";
 import { globalStyles } from "../styles";
@@ -232,7 +233,15 @@ const DynamicTabsScreen = () => {
   /* Tabs management */
   return (
     <View style={[globalStyles.container]}>
-        <LocationZoneHome country={currentCountry} department={currentDepartment} />
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingTop: 10 }}>
+        <BackButton 
+          route="/main-menu" 
+          style={{ marginRight: 10 }}
+        />
+        <View style={{ flex: 1 }}>
+          <LocationZoneHome country={currentCountry} department={currentDepartment} />
+        </View>
+      </View>
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}
