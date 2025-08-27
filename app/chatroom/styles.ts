@@ -12,7 +12,11 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    marginTop: 4,
+    marginTop: 10,
+  },
+  sidebarToggle: {
+    padding: 8,
+    marginRight: 10,
   },
   headerButton: {
     alignItems: 'center',

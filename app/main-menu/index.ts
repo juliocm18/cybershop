@@ -46,6 +46,24 @@ const MENU_ITEMS: MenuItem[] = [
     link: '/media-naranja/Home'
   },
   {
+    key: 'games',
+    title: 'Juegos',
+    iconType: 'Ionicons',
+    icon: 'game-controller',
+    description: 'Diviértete con nuestros juegos disponibles.',
+    color: '#9c27b0',
+    link: ''
+  },
+  {
+    key: 'wallet',
+    title: 'Billetera Virtual',
+    iconType: 'Ionicons',
+    icon: 'wallet',
+    description: 'Gestiona tu dinero digital de forma segura.',
+    color: '#4caf50',
+    link: ''
+  },  
+  {
     key: 'support',
     title: 'Soporte',
     iconType: 'Ionicons',

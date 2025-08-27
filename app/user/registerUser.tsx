@@ -15,6 +15,7 @@ import Select from "../components/select";
 import gendersData from "../data/genders.json";
 import sexualPreferencesData from "../data/sexual-preferences.json";
 import { useRouter } from "expo-router";
+import BackButton from '../components/BackButton';
 
 export default function RegisterUser() {
     const router = useRouter();
@@ -260,7 +261,12 @@ export default function RegisterUser() {
             >
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
                     <View style={styles.container}>
-                        <Text style={styles.pageTitle}>Registro de Usuario</Text>
+                        <View style={styles.headerContainer}>
+                            <View style={styles.backButtonContainer}>
+                                <BackButton route="/main-menu" />
+                            </View>
+                            <Text style={styles.pageTitleHeader}>Registro de Usuario</Text>
+                        </View>
 
                         <View style={styles.formContainer}>
                             {validationError && (
@@ -584,6 +590,21 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingBottom: 40,
     },
+    headerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 30,
+        paddingHorizontal: 5,
+        zIndex: 10, // Ensure header is above other elements
+        elevation: 10, // Android elevation
+    },
+    backButtonContainer: {
+        minWidth: 44,
+        minHeight: 44,
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 20, // Higher z-index to ensure it's on top
+    },
     formContainer: {
         width: '100%',
     },
@@ -593,6 +614,14 @@ const styles = StyleSheet.create({
         textAlign: "center",
         marginBottom: 30,
         color: "#fb8436",
+    },
+    pageTitleHeader: {
+        fontSize: 24,
+        fontWeight: "bold",
+        color: "#fb8436",
+        flex: 1,
+        textAlign: 'center',
+        marginLeft: -40, // Offset to center the title accounting for back button
     },
     inputLabel: {
         fontSize: 16,

@@ -48,6 +48,9 @@ const BackButton: React.FC<BackButtonProps> = ({
   return (
     <TouchableOpacity 
       onPress={handlePress}
+      activeOpacity={0.7}
+      delayPressIn={0}
+      delayPressOut={0}
       style={[
         styles.button,
         {

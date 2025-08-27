@@ -14,6 +14,7 @@ import GroupInvitationsModal from './components/GroupInvitationsModal';
 import GroupMembersModal from './components/GroupMembersModal';
 import MyChatsModal from './components/MyChatsModal';
 import GroupsScreen from './GroupsScreen';
+import ChatSidebar from './components/ChatSidebar';
 
 export default function ChatRoomScreen() {
   const params = useLocalSearchParams();
@@ -32,6 +33,7 @@ export default function ChatRoomScreen() {
   const [isMyChatsModalVisible, setIsMyChatsModalVisible] = useState(false);
   const [pendingInvitationsCount, setPendingInvitationsCount] = useState(0);
   const [currentRoomIsPrivate, setCurrentRoomIsPrivate] = useState(false);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [roomDetails, setRoomDetails] = 
   useState<{id: string, name: string, is_private: boolean, created_by: string} | null>(null);
 
@@ -199,38 +201,11 @@ export default function ChatRoomScreen() {
     return (
       <View style={styles.headerButtonsContainer}>
         <TouchableOpacity
-          key="my-chats-button"
-          style={styles.headerButton}
-          onPress={handleViewMyChats}
+          style={styles.sidebarToggle}
+          onPress={() => setIsSidebarVisible(true)}
         >
-          <Ionicons name="chatbubbles" size={24} color="#fb8436" />
-          <Text style={styles.headerButtonText}>Mis Chats</Text>
+          <Ionicons name="menu" size={24} color="#fb8436" />
         </TouchableOpacity>
-
-        <TouchableOpacity
-          key="groups-button"
-          style={styles.headerButton}
-          onPress={navigateToGroups}
-        >
-          <Ionicons name="people" size={24} color="#fb8436" />
-          <Text style={styles.headerButtonText}>Grupos</Text>
-        </TouchableOpacity>
-              
-        <TouchableOpacity
-          key="invitations-button"
-          style={styles.headerButton}
-          onPress={handleViewInvitations}
-        >
-          <View style={{flexDirection: 'row'}}>
-            <Ionicons name="mail" size={24} color="#fb8436" />
-            {pendingInvitationsCount > 0 && (
-              <View style={styles.badgeContainer}>
-                <Text style={styles.badgeText}>{pendingInvitationsCount}</Text>
-              </View>
-            )}
-          </View>
-          <Text style={styles.headerButtonText}>Invitaciones</Text>
-        </TouchableOpacity>        
         {chatType === 'group' && roomDetails?.created_by === currentUser?.id && (
           <TouchableOpacity
             key="manage-members-button"
@@ -318,6 +293,15 @@ export default function ChatRoomScreen() {
             onClose={() => setIsMyChatsModalVisible(false)}
             currentUserId={currentUser.id}
             onChatSelected={handleChatSelected}
+          />
+          
+          <ChatSidebar
+            isVisible={isSidebarVisible}
+            onClose={() => setIsSidebarVisible(false)}
+            onViewMyChats={handleViewMyChats}
+            onNavigateToGroups={navigateToGroups}
+            onViewInvitations={handleViewInvitations}
+            pendingInvitationsCount={pendingInvitationsCount}
           />
         </>
       )}
