@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
 interface LoginModalProps {
@@ -13,6 +14,7 @@ interface LoginModalProps {
 const LoginModal: React.FC<LoginModalProps> = ({ visible, onLogin, onClose, onGoToRegister, error }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   return (
@@ -29,17 +31,31 @@ const LoginModal: React.FC<LoginModalProps> = ({ visible, onLogin, onClose, onGo
           <TextInput
             style={styles.input}
             placeholder="Usuario"
+            placeholderTextColor="#999"
             value={username}
             onChangeText={setUsername}
             autoCapitalize="none"
           />
-          <TextInput
-            style={styles.input}
-            placeholder="Contraseña"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.passwordInput}
+              placeholder="Contraseña"
+              placeholderTextColor="#999"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
+              style={styles.eyeButton}
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              <Ionicons
+                name={showPassword ? "eye-outline" : "eye-off-outline"}
+                size={20}
+                color="#666"
+              />
+            </TouchableOpacity>
+          </View>
           <TouchableOpacity style={styles.loginButton} onPress={() => onLogin(username, password)}>
             <Text style={styles.loginButtonText}>Entrar</Text>
           </TouchableOpacity>
@@ -82,6 +98,25 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 12,
     fontSize: 16,
+  },
+  passwordContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 6,
+    marginBottom: 12,
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 10,
+    fontSize: 16,
+  },
+  eyeButton: {
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   loginButton: {
     backgroundColor: '#fb8436',
