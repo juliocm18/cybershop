@@ -48,7 +48,7 @@ export const handleOpenApp = async (app: {package: string; url: string}) => {
       Alert.alert(
         "Aplicación no encontrada",
         "La aplicación no está instalada. Se abrirá en el navegador.",
-        [{text: "OK", onPress: () => Linking.openURL(app.url)}]
+        [{text: "Aceptar", onPress: () => Linking.openURL(app.url)}]
       );
     }
   } catch (error) {
