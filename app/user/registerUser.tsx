@@ -269,12 +269,6 @@ export default function RegisterUser() {
                         </View>
 
                         <View style={styles.formContainer}>
-                            {validationError && (
-                                <View style={styles.errorContainer}>
-                                    <Text style={styles.errorText}>{validationError}</Text>
-                                </View>
-                            )}
-
                             <Text style={styles.inputLabel}>Nombre Completo</Text>
                             <TextInput
                                 style={styles.input}
@@ -412,6 +406,7 @@ export default function RegisterUser() {
                                 isVisible={isDatePickerVisible}
                                 mode="date"
                                 date={birthDate}
+                                minimumDate={new Date(1920, 0, 1)}
                                 maximumDate={new Date()}
                                 onConfirm={handleConfirmDate}
                                 onCancel={handleCancelDate}
@@ -518,6 +513,12 @@ export default function RegisterUser() {
                                     ¿Desea formar parte de media naranja?
                                 </Text>
                             </View>
+
+                            {validationError && (
+                                <View style={styles.errorContainer}>
+                                    <Text style={styles.errorText}>{validationError}</Text>
+                                </View>
+                            )}
 
                             <TouchableOpacity
                                 style={[styles.registerButton, !termsAccepted && styles.buttonDisabled]}

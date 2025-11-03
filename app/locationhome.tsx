@@ -51,8 +51,8 @@ const LocationHome = () => {
       setClickCount(0); // Resetea el contador si no hay 3 clics seguidos
     }, 1000);
 
-    if (clickCount + 1 === 3) {
-      setClickCount(0); // Reinicia el contador después de los 3 clics
+    if (clickCount + 1 === 7) {
+      setClickCount(0); // Reinicia el contador después de los 7 clics
       router.push("../auth/login"); // Cambia "OtraPantalla" por el nombre de tu pantalla
     }
   };
