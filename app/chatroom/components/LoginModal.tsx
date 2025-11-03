@@ -12,13 +12,13 @@ import { supabase } from '../../supabase';
 import { globalStyles } from '@/app/styles';
 import { useRouter } from 'expo-router';
 
-interface LoginModalProps {
+interface ChatLoginModalProps {
   isVisible: boolean;
   onLoginSuccess: (userId: string) => void;
   onClose: () => void;
 }
 
-export const LoginModal: React.FC<LoginModalProps> = ({ isVisible, onLoginSuccess, onClose }) => {
+export const ChatLoginModal: React.FC<ChatLoginModalProps> = ({ isVisible, onLoginSuccess, onClose }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);

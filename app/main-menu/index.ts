@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions, Alert }
 import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { router, useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
-import LoginModal from '../media-naranja/components/LoginModal';
+import MediaNaranjaLoginModal from '../media-naranja/components/LoginModal';
 import { supabase } from '../supabase';
 
 // Define your menu items here
@@ -182,7 +182,7 @@ const MainMenu: React.FC = () => {
         showsVerticalScrollIndicator: false,
       }
     ),
-    React.createElement(LoginModal, {
+    React.createElement(MediaNaranjaLoginModal, {
       visible: loginModalVisible,
       onLogin: handleLogin,
       onClose: () => setLoginModalVisible(false),

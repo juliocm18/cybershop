@@ -2,19 +2,22 @@ import React, { useState } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import RecoverPasswordModal from './RecoverPasswordModal';
 
 interface LoginModalProps {
   visible: boolean;
   onLogin: (username: string, password: string) => void;
   onClose: () => void;
   onGoToRegister: () => void;
+  onForgotPassword?: () => void;
   error?: string;
 }
 
-const LoginModal: React.FC<LoginModalProps> = ({ visible, onLogin, onClose, onGoToRegister, error }) => {
+const LoginModal: React.FC<LoginModalProps> = ({ visible, onLogin, onClose, onGoToRegister, onForgotPassword, error }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showRecoverModal, setShowRecoverModal] = useState(false);
   const router = useRouter();
 
   return (
@@ -59,6 +62,16 @@ const LoginModal: React.FC<LoginModalProps> = ({ visible, onLogin, onClose, onGo
           <TouchableOpacity style={styles.loginButton} onPress={() => onLogin(username, password)}>
             <Text style={styles.loginButtonText}>Entrar</Text>
           </TouchableOpacity>
+          {/* Always visible forgot password button */}
+          <TouchableOpacity 
+            onPress={() => {
+              console.log('Opening recover password modal');
+              setShowRecoverModal(true);
+            }} 
+            style={styles.forgotPasswordButton}
+          >
+            <Text style={styles.forgotPasswordText}>¿Olvidaste tu contraseña?</Text>
+          </TouchableOpacity>
           <Text style={styles.link}>
             ¿No tienes una cuenta? <Text style={styles.linkText} onPress={() => onGoToRegister()}>Regístrate</Text>
           </Text>
@@ -67,6 +80,12 @@ const LoginModal: React.FC<LoginModalProps> = ({ visible, onLogin, onClose, onGo
           </TouchableOpacity>
         </View>
       </View>
+      
+      {/* Recover Password Modal */}
+      <RecoverPasswordModal
+        visible={showRecoverModal}
+        onClose={() => setShowRecoverModal(false)}
+      />
     </Modal>
   );
 };
@@ -154,6 +173,20 @@ const styles = StyleSheet.create({
   },
   linkText: {
     color: '#0084ff',
+    fontWeight: 'bold',
+  },
+  forgotPasswordButton: {
+    marginTop: 8,
+    marginBottom: 8,
+    padding: 8,
+    backgroundColor: '#f0f0f0', // Temporary background for debugging
+    borderRadius: 4,
+    alignItems: 'center',
+  },
+  forgotPasswordText: {
+    color: '#fb8436',
+    fontSize: 14,
+    textDecorationLine: 'underline',
     fontWeight: 'bold',
   },
 });

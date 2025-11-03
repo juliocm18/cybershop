@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import LoginModal from './components/LoginModal';
+import RecoverPasswordModal from './components/RecoverPasswordModal';
 import { View, StyleSheet, Animated, Platform, Text, TouchableOpacity } from 'react-native';
 import AppHeader from './components/AppHeader';
 import { getProfilesFromSupabase, handleLikeSupabase, handleNopeSupabase } from './data/profiles';
@@ -27,6 +28,7 @@ export default function Home() {
   const [userLoggedIn, setUserLoggedIn] = useState(false);
   const [userLoggedInfo, setUserLoggedInfo] = useState<loggedUserInfo | null>(null);
   const [loginModalVisible, setLoginModalVisible] = useState(true);
+  const [recoverPasswordModalVisible, setRecoverPasswordModalVisible] = useState(false);
   const [loginError, setLoginError] = useState<string | undefined>(undefined);
 
   const [index, setIndex] = useState(0);
@@ -67,7 +69,7 @@ export default function Home() {
     if (session !== undefined) {
       setSessionLoading(false);
     }
-    
+
     // Check if session exists
     if (session) {
       setUserLoggedIn(true);
@@ -76,7 +78,7 @@ export default function Home() {
 
       // Fetch user profile data when session is available
       fetchUserProfile();
-      
+
       // Get userId and sexual preference
       const userId = session.user.id;
       const userSexualPreference = session.user.user_metadata?.sexual_preference;
@@ -219,53 +221,69 @@ export default function Home() {
 
   if (!userLoggedIn) {
     return (
-      <LoginModal
-        visible={loginModalVisible}
-        onLogin={async (username, password) => {
+      <>
+        <LoginModal
+          visible={loginModalVisible}
+          onLogin={async (username, password) => {
 
-          if (!username || !password) {
-            setLoginError('Campos Obligatorios');
-            return;
-          }
+            if (!username || !password) {
+              setLoginError('Campos Obligatorios');
+              return;
+            }
 
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email: username,
-            password: password,
-          });
+            const { data, error } = await supabase.auth.signInWithPassword({
+              email: username,
+              password: password,
+            });
 
-          if (error) {
-            setLoginError('Usuario o contraseña incorrectos');
-            throw error;
-          }
+            if (error) {
+              setLoginError('Usuario o contraseña incorrectos');
+              throw error;
+            }
 
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', data.user?.id)
-            .single(); // como es solo un usuario
+            const { data: profile, error: profileError } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', data.user?.id)
+              .single(); // como es solo un usuario
 
-          if (profileError) {
-            console.error("Error al obtener el perfil:", profileError.message);
-            return;
-          }
+            if (profileError) {
+              console.error("Error al obtener el perfil:", profileError.message);
+              return;
+            }
 
-          if (data.user && profile) {
-            setUserLoggedInfo(profile);
-            setUserLoggedIn(true);
+            if (data.user && profile) {
+              setUserLoggedInfo(profile);
+              setUserLoggedIn(true);
+              setLoginModalVisible(false);
+              setLoginError(undefined);
+            } else {
+              setLoginError('Usuario o contraseña incorrectos');
+            }
+          }}
+          onClose={() => setLoginModalVisible(false)}
+          onGoToRegister={() => {
+            // Placeholder: navigate to register screen or show register modal
             setLoginModalVisible(false);
-            setLoginError(undefined);
-          } else {
-            setLoginError('Usuario o contraseña incorrectos');
-          }
-        }}
-        onClose={() => setLoginModalVisible(false)}
-        onGoToRegister={() => {
-          // Placeholder: navigate to register screen or show register modal
-          setLoginModalVisible(false);
-          router.push('/user/registerUser');
-        }}
-        error={loginError}
-      />
+            router.push('/user/registerUser');
+          }}
+          onForgotPassword={() => {
+            setLoginModalVisible(false);
+            setRecoverPasswordModalVisible(true);
+          }}
+          error={loginError}
+        />
+
+
+        <RecoverPasswordModal
+          visible={recoverPasswordModalVisible}
+          onClose={() => {
+            setRecoverPasswordModalVisible(false);
+            setLoginModalVisible(true);
+          }}
+        />
+      </>
+
     );
   }
 

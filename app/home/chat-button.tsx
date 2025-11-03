@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Text, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from '../context/AuthContext';
-import LoginModal from '../media-naranja/components/LoginModal';
+import MediaNaranjaLoginModal from '../media-naranja/components/LoginModal';
 import { supabase } from '../supabase';
 
 const ChatButton = () => {
@@ -80,7 +80,7 @@ const ChatButton = () => {
       </Text>
     </Pressable>
     
-    <LoginModal
+    <MediaNaranjaLoginModal
       visible={loginModalVisible}
       onLogin={handleLogin}
       onClose={() => setLoginModalVisible(false)}
