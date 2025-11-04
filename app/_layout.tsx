@@ -45,10 +45,11 @@ function MainLayout() {
 
 
   useEffect(() => {
-    if (!loading && isVideoFinished) {
-      router.replace("/locationhome");
+    if (isVideoFinished && !loading) {
+      // Navigate to home after video finishes
+      router.replace("/");
     }
-  }, [session, loading, isVideoFinished]);
+  }, [isVideoFinished, loading]);
 
 
   return (
@@ -61,9 +62,8 @@ function MainLayout() {
           allowsPictureInPicture={false}
           nativeControls={false}
         />
-      ) : (
-        <Stack screenOptions={{ headerShown: false as boolean }} />
-      )}
+      ) : null}
+      <Stack screenOptions={{ headerShown: false }} />
     </View>
   );
 }

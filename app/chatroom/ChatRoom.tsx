@@ -534,7 +534,7 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
           onPress: async () => {
             try {
               await signOut();
-              router.replace('/locationhome');
+              router.replace('/');
             } catch (error) {
               console.error('Error al cerrar sesión:', error);
               Alert.alert('Error', 'No se pudo cerrar sesión. Por favor, intenta de nuevo.');

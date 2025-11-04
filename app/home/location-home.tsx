@@ -24,7 +24,7 @@ const LocationZoneHome = ({
       }}
     >
       <ChatButton />
-      <Pressable onPress={() => router.push("../locationhome")}>
+      <Pressable onPress={() => router.push("/")}>
         <View style={{ flexDirection: "row", alignItems: "center", marginRight: 5 }}>
           <Text
             style={{

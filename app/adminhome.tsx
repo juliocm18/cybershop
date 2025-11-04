@@ -34,7 +34,7 @@ const Home: React.FC = () => {
           onPress: async () => {
             try {
               await signOut();
-              router.replace('/locationhome');
+              router.replace('/');
             } catch (error) {
               console.error('Error al cerrar sesión:', error);
               Alert.alert('Error', 'No se pudo cerrar sesión. Por favor, intenta de nuevo.');
@@ -180,7 +180,7 @@ const Home: React.FC = () => {
       <View style={styles.bottomButtonsContainer}>
         <TouchableOpacity
           style={styles.bottonButton}
-          onPress={() => router.push("../locationhome")}
+          onPress={() => router.push("../")}
         >
           <Text style={styles.buttonText}>Ir a la Tienda</Text>
         </TouchableOpacity>

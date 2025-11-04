@@ -94,7 +94,7 @@ export default function Login() {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push("../locationhome")}
+        onPress={() => router.push("../")}
       >
         <Text style={styles.buttonText}>{t('auth.goToStore')}</Text>
       </TouchableOpacity>

@@ -2,7 +2,7 @@ const { getDefaultConfig } = require('expo/metro-config');
 
 const config = getDefaultConfig(__dirname);
 
-// Expo SDK 53 specific resolver configuration for Node.js modules
+// Expo SDK 54 specific resolver configuration for Node.js modules
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   // Disable problematic Node.js modules for React Native
   if (
@@ -21,8 +21,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
       type: 'empty',
     };
   }
-  
-  // Default resolver
+
   return context.resolveRequest(context, moduleName, platform);
 };
 
