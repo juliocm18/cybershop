@@ -19,7 +19,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
   onClose,
 }) => {
   return (
-    <Modal visible={visible} animationType="slide" transparent>
+    <Modal visible={visible} animationType="slide" transparent={true}>
       <View style={globalStyles.modalContainer}>
         <View style={globalStyles.modalContent}>
           <Text style={globalStyles.modalTitle}>Filtrar por Categoría</Text>
@@ -31,7 +31,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
                   fillColor="#ff9f61"
                   unFillColor="#FFFFFF"
                   text={category}
-                  isChecked={selectedCategories.includes(category)}
+                  isChecked={Boolean(selectedCategories.includes(category))}
                   onPress={() => toggleCategory(category)}
                   textStyle={globalStyles.checkboxText}
                   iconStyle={globalStyles.checkboxIcon}

@@ -23,7 +23,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
     <Modal
       visible={isVisible}
       animationType="slide"
-      transparent
+      transparent={true}
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>

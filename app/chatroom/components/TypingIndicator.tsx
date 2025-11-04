@@ -31,22 +31,22 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({ roomId, curren
         Animated.timing(dots, {
           toValue: 1,
           duration: 300,
-          useNativeDriver: false
+          useNativeDriver: false as boolean
         }),
         Animated.timing(dots, {
           toValue: 2,
           duration: 300,
-          useNativeDriver: false
+          useNativeDriver: false as boolean
         }),
         Animated.timing(dots, {
           toValue: 3,
           duration: 300,
-          useNativeDriver: false
+          useNativeDriver: false as boolean
         }),
         Animated.timing(dots, {
           toValue: 0,
           duration: 300,
-          useNativeDriver: false
+          useNativeDriver: false as boolean
         })
       ])
     );

@@ -62,7 +62,7 @@ function MainLayout() {
           nativeControls={false}
         />
       ) : (
-        <Stack screenOptions={{ headerShown: false }} />
+        <Stack screenOptions={{ headerShown: false as boolean }} />
       )}
     </View>
   );

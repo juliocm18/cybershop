@@ -24,7 +24,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ visible, onLogin, onClose, onGo
     <Modal
       visible={visible}
       animationType="slide"
-      transparent
+      transparent={true}
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>

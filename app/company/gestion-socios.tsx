@@ -450,7 +450,7 @@ const CompanyScreen = () => {
         windowSize={3}
       />
 
-      <Modal visible={modalVisible} animationType="slide" transparent>
+      <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.socialModaltitle}>
@@ -542,7 +542,7 @@ const CompanyScreen = () => {
         </View>
       </Modal>
 
-      <Modal visible={modalLinkVisible} animationType="slide" transparent>
+      <Modal visible={modalLinkVisible} animationType="slide" transparent={true}>
         <View style={styles.modalContainer}>
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}

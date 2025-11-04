@@ -56,7 +56,7 @@ const RecoverPasswordModal: React.FC<RecoverPasswordModalProps> = ({ visible, on
     <Modal
       visible={visible}
       animationType="slide"
-      transparent
+      transparent={true}
       onRequestClose={handleClose}
     >
       <View style={styles.overlay}>

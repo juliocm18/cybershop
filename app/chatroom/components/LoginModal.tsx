@@ -59,7 +59,7 @@ export const ChatLoginModal: React.FC<ChatLoginModalProps> = ({ isVisible, onLog
   };
 
   return (
-    <Modal visible={isVisible} animationType="slide" transparent>
+    <Modal visible={isVisible} animationType="slide" transparent={true}>
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <Text style={globalStyles.modalTitle}>Iniciar Sesión</Text>

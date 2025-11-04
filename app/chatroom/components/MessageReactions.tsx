@@ -168,7 +168,7 @@ export const MessageReactions: React.FC<MessageReactionsProps> = ({ messageId, c
 
       {/* Reaction picker modal */}
       <Modal
-        transparent
+        transparent={true}
         visible={showReactionPicker}
         animationType="fade"
         onRequestClose={() => setShowReactionPicker(false)}

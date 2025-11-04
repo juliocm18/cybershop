@@ -33,7 +33,7 @@ export default function MatchModal({ visible, onClose, userPhoto, matchPhoto, ma
       Animated.timing(animation, {
         toValue: 1,
         duration: 800,
-        useNativeDriver: true,
+        useNativeDriver: true as boolean,
       }).start();
     }
   }, [localVisible]);
@@ -156,7 +156,7 @@ export default function MatchModal({ visible, onClose, userPhoto, matchPhoto, ma
   const safeMatchPhoto = matchPhoto || 'https://via.placeholder.com/150';
   
   return (
-    <Modal visible={visible || localVisible} transparent animationType="fade" onRequestClose={handleClose}>
+    <Modal visible={visible || localVisible} transparent={true} animationType="fade" onRequestClose={handleClose}>
       <View style={styles.overlay}>
         <Animated.View 
           style={[

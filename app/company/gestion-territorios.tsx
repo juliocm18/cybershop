@@ -279,7 +279,7 @@ const GestionTerritorios = () => {
         windowSize={5}
       />
 
-      <Modal visible={modalTerritoryVisible} animationType="slide" transparent>
+      <Modal visible={modalTerritoryVisible} animationType="slide" transparent={true}>
         <View style={styles.modalContainer}>
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -401,7 +401,7 @@ const GestionTerritorios = () => {
       </Modal>
 
 
-      <Modal visible={modalCountryVisible} animationType="slide" transparent>
+      <Modal visible={modalCountryVisible} animationType="slide" transparent={true}>
         <View style={styles.modalContainer}>
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}

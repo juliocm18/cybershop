@@ -255,7 +255,7 @@ export default function Index() {
         )}
       />
 
-      <Modal visible={modalVisible} animationType="slide" transparent>
+      <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.socialModaltitle}>
@@ -339,7 +339,7 @@ export default function Index() {
         </View>
       </Modal>
 
-      <Modal visible={modalTerritoryVisible} animationType="slide" transparent>
+      <Modal visible={modalTerritoryVisible} animationType="slide" transparent={true}>
         <View style={styles.modalContainer}>
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}

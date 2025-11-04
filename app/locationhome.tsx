@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, TouchableOpacity, Alert } from "react-native";
-import { Text, Button, ActivityIndicator } from "react-native-paper";
+import { Text } from "react-native-paper";
 
 import continentsData from "./data/continents.json";
 import countriesData from "./data/countries.json";

@@ -69,10 +69,8 @@ const Select: React.FC<SelectProps> = ({
         selectedValue={selectedValue}
         onValueChange={onValueChange}
         style={styles.picker}
-        mode="dropdown"
       >
         <Picker.Item
-          style={{ color: selectedValue === "" ? "#fb8436" : "#000" }}
           label={`-- SELECCIONA ${label.toUpperCase()} --`}
           value=""
         />
@@ -81,7 +79,6 @@ const Select: React.FC<SelectProps> = ({
             key={item.id}
             label={item.name}
             value={item.id}
-            style={{ color: selectedValue === item.id ? "#fb8436" : "#000" }}
           />
         ))}
       </Picker>
