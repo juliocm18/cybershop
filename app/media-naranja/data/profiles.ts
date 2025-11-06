@@ -2,7 +2,11 @@ import { supabase } from '../../supabase';
 import { clientProfile } from '@/app/user/model';
 
 // Fetch profiles from Supabase where accept_media_naranja is true
-export async function getProfilesFromSupabase(userId?: string, sexualPreference?: string): Promise<clientProfile[]> {
+export async function getProfilesFromSupabase(
+  userId?: string, 
+  sexualPreference?: string,
+  userGender?: string
+): Promise<clientProfile[]> {
   // Step 1: Get liked and noped user IDs
   let excludeIds: string[] = [];
   if (userId) {
@@ -23,11 +27,21 @@ export async function getProfilesFromSupabase(userId?: string, sexualPreference?
     .from('profiles')
     .select('*')
     .eq('accept_media_naranja', true);
-  if (sexualPreference) {
-    query = query.eq('sexual_preference', sexualPreference);
+  
+  // Filter by gender and sexual preference
+  if (sexualPreference && sexualPreference !== 'ambos') {
+    // Show profiles whose gender matches the user's sexual preference
+    query = query.eq('gender', sexualPreference);
   }
+  
+  if (userGender) {
+    // Show profiles whose sexual preference matches the user's gender
+    // or profiles that accept 'ambos' (both genders)
+    query = query.or(`sexual_preference.eq.${userGender},sexual_preference.eq.ambos`);
+  }
+  
   if (excludeIds.length > 0) {
-    query = query.not('id', 'in', `(${excludeIds.join(',')})`);
+    query = query.not('id', 'in', `(${excludeIds.join(',')})`)
   }
   const { data, error } = await query;
   if (error) {

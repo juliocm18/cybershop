@@ -49,7 +49,7 @@ const LocationHome = () => {
 
     setTimeout(() => {
       setClickCount(0); // Resetea el contador si no hay 3 clics seguidos
-    }, 1000);
+    }, 2000);
 
     if (clickCount + 1 === 7) {
       setClickCount(0); // Reinicia el contador después de los 7 clics

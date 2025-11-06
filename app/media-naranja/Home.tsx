@@ -58,6 +58,14 @@ export default function Home() {
 
       if (profile) {
         setUserLoggedInfo(profile);
+        // Update user metadata with profile data
+        if (session?.user) {
+          session.user.user_metadata = {
+            ...session.user.user_metadata,
+            gender: profile.gender,
+            sexual_preference: profile.sexual_preference
+          };
+        }
       }
     } catch (error) {
       console.error("Error in fetchUserProfile:", error);
@@ -77,15 +85,16 @@ export default function Home() {
       setLoadingProfiles(true);
 
       // Fetch user profile data when session is available
-      fetchUserProfile();
+      fetchUserProfile().then(() => {
+        // Get userId, sexual preference, and gender
+        const userId = session.user.id;
+        const userSexualPreference = session.user.user_metadata?.sexual_preference;
+        const userGender = session.user.user_metadata?.gender;
 
-      // Get userId and sexual preference
-      const userId = session.user.id;
-      const userSexualPreference = session.user.user_metadata?.sexual_preference;
-
-      getProfilesFromSupabase(userId, userSexualPreference).then((data) => {
-        setProfiles(data);
-        setLoadingProfiles(false);
+        getProfilesFromSupabase(userId, userSexualPreference, userGender).then((data) => {
+          setProfiles(data);
+          setLoadingProfiles(false);
+        });
       });
     } else if (session === null) {
       // User is definitely logged out - reset all states and redirect
