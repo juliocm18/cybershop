@@ -53,6 +53,7 @@ export default function Login() {
       <TextInput
         style={styles.input}
         placeholder={t('auth.email')}
+        placeholderTextColor="#999"
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
@@ -63,6 +64,7 @@ export default function Login() {
         <TextInput
           style={styles.passwordInput}
           placeholder={t('auth.password')}
+          placeholderTextColor="#999"
           value={password}
           onChangeText={setPassword}
           secureTextEntry={!showPassword}
@@ -86,9 +88,12 @@ export default function Login() {
         {loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={styles.buttonText}>
-            {t('auth.loginButton')}
-          </Text>
+          <View style={styles.buttonContent}>
+            <Ionicons name="log-in-outline" size={20} color="#fff" style={styles.buttonIcon} />
+            <Text style={styles.buttonText}>
+              {t('auth.loginButton')}
+            </Text>
+          </View>
         )}
       </TouchableOpacity>
 
@@ -96,7 +101,10 @@ export default function Login() {
         style={styles.button}
         onPress={() => router.push("../")}
       >
-        <Text style={styles.buttonText}>{t('auth.goToStore')}</Text>
+        <View style={styles.buttonContent}>
+          <Ionicons name="storefront-outline" size={20} color="#fff" style={styles.buttonIcon} />
+          <Text style={styles.buttonText}>{t('auth.goToStore')}</Text>
+        </View>
       </TouchableOpacity>
     </View>
   );
@@ -146,6 +154,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 15,
     alignItems: "center",
+  },
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonIcon: {
+    marginRight: 8,
   },
   buttonText: {
     color: "#fff",

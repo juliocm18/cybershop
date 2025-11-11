@@ -28,6 +28,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     padding: 10,
+    marginBottom: 15,
   },
   pickerContainer: {
     borderWidth: 1,
@@ -156,6 +157,7 @@ export const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "bold",
     padding: 10,
+    marginTop: 20,
   },
   
 });

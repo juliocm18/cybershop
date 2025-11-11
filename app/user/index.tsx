@@ -266,7 +266,8 @@ export default function Index() {
               <>
                 <TextInput
                   style={styles.input}
-                  placeholder="Email"
+                  placeholder="Usuario"
+                  placeholderTextColor="#999"
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
@@ -275,7 +276,8 @@ export default function Index() {
                 <View style={styles.passwordContainer}>
                   <TextInput
                     style={styles.passwordInput}
-                    placeholder="Password"
+                    placeholder="Contraseña"
+                    placeholderTextColor="#999"
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry={!showPassword}
