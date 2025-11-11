@@ -57,6 +57,9 @@ const LocationHome = () => {
     }
   };
 
+  const goToRegister = () => {
+    router.push("/user/registerUser");
+  };
   const handleConfirm = async () => {
     if (department) {
       await AsyncStorage.setItem("department", department);
@@ -133,6 +136,16 @@ const LocationHome = () => {
 
       </TouchableOpacity>
 
+      <TouchableOpacity
+        style={styles.registerLink}
+        onPress={goToRegister}
+      >
+        <Text style={styles.registerLinkText}>
+          ¿No tienes una cuenta?{" "}
+          <Text style={styles.registerLinkBold}>Regístrate aquí</Text>
+        </Text>
+      </TouchableOpacity>
+
 
       {/* <Button
         mode="contained"
@@ -178,6 +191,20 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     //textAlign: "center",
+  },
+  registerLink: {
+    marginTop: 20,
+    alignItems: "center",
+    padding: 10,
+  },
+  registerLinkText: {
+    fontSize: 14,
+    color: "#666",
+  },
+  registerLinkBold: {
+    fontWeight: "bold",
+    color: "#ff9f61",
+    textDecorationLine: "underline",
   },
 });
 

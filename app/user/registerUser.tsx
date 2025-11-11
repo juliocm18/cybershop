@@ -25,6 +25,7 @@ export default function RegisterUser() {
     const [sexualPreferences, setSexualPreferences] = useState(sexualPreferencesData);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [countryCode, setCountryCode] = useState("+1");
     const [phoneNumber, setPhoneNumber] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [logoUri, setLogoUri] = useState<string | null>(null);
@@ -34,6 +35,7 @@ export default function RegisterUser() {
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [name, setName] = useState("");
     const [validationError, setValidationError] = useState<string | null>(null);
+    const [isCountryModalVisible, setCountryModalVisible] = useState(false);
 
     // Nuevos estados para los campos obligatorios
     const [gender, setGender] = useState("");
@@ -73,6 +75,7 @@ export default function RegisterUser() {
     const clearFields = () => {
         setEmail("");
         setPassword("");
+        setCountryCode("+1");
         setPhoneNumber("");
         setLogoUri(null);
         setLoading(false);
@@ -122,6 +125,174 @@ export default function RegisterUser() {
         }
     };
 
+    // Country codes data - comprehensive list
+    const countryCodes = [
+        // América del Norte
+        { code: "+1", country: "Estados Unidos/Canadá", flag: "🇺🇸" },
+        { code: "+52", country: "México", flag: "🇲🇽" },
+        
+        // América Central y Caribe
+        { code: "+501", country: "Belice", flag: "🇧🇿" },
+        { code: "+502", country: "Guatemala", flag: "🇬🇹" },
+        { code: "+503", country: "El Salvador", flag: "🇸🇻" },
+        { code: "+504", country: "Honduras", flag: "🇭🇳" },
+        { code: "+505", country: "Nicaragua", flag: "🇳🇮" },
+        { code: "+506", country: "Costa Rica", flag: "🇨🇷" },
+        { code: "+507", country: "Panamá", flag: "🇵🇦" },
+        { code: "+53", country: "Cuba", flag: "🇨🇺" },
+        { code: "+1-809", country: "República Dominicana", flag: "🇩🇴" },
+        { code: "+1-787", country: "Puerto Rico", flag: "🇵🇷" },
+        { code: "+1-876", country: "Jamaica", flag: "🇯🇲" },
+        { code: "+509", country: "Haití", flag: "🇭🇹" },
+        
+        // América del Sur
+        { code: "+54", country: "Argentina", flag: "🇦🇷" },
+        { code: "+55", country: "Brasil", flag: "🇧🇷" },
+        { code: "+56", country: "Chile", flag: "🇨🇱" },
+        { code: "+57", country: "Colombia", flag: "🇨🇴" },
+        { code: "+58", country: "Venezuela", flag: "🇻🇪" },
+        { code: "+591", country: "Bolivia", flag: "🇧🇴" },
+        { code: "+592", country: "Guyana", flag: "🇬🇾" },
+        { code: "+593", country: "Ecuador", flag: "🇪🇨" },
+        { code: "+594", country: "Guayana Francesa", flag: "🇬🇫" },
+        { code: "+595", country: "Paraguay", flag: "🇵🇾" },
+        { code: "+597", country: "Surinam", flag: "🇸🇷" },
+        { code: "+598", country: "Uruguay", flag: "🇺🇾" },
+        { code: "+51", country: "Perú", flag: "🇵🇪" },
+        
+        // Europa Occidental
+        { code: "+34", country: "España", flag: "🇪🇸" },
+        { code: "+33", country: "Francia", flag: "🇫🇷" },
+        { code: "+39", country: "Italia", flag: "🇮🇹" },
+        { code: "+351", country: "Portugal", flag: "🇵🇹" },
+        { code: "+49", country: "Alemania", flag: "🇩🇪" },
+        { code: "+44", country: "Reino Unido", flag: "🇬🇧" },
+        { code: "+353", country: "Irlanda", flag: "🇮🇪" },
+        { code: "+32", country: "Bélgica", flag: "🇧🇪" },
+        { code: "+31", country: "Países Bajos", flag: "🇳🇱" },
+        { code: "+352", country: "Luxemburgo", flag: "🇱🇺" },
+        { code: "+41", country: "Suiza", flag: "🇨🇭" },
+        { code: "+43", country: "Austria", flag: "🇦🇹" },
+        
+        // Europa del Norte
+        { code: "+45", country: "Dinamarca", flag: "🇩🇰" },
+        { code: "+46", country: "Suecia", flag: "🇸🇪" },
+        { code: "+47", country: "Noruega", flag: "🇳🇴" },
+        { code: "+358", country: "Finlandia", flag: "🇫🇮" },
+        { code: "+354", country: "Islandia", flag: "🇮🇸" },
+        
+        // Europa del Este
+        { code: "+48", country: "Polonia", flag: "�🇱" },
+        { code: "+420", country: "República Checa", flag: "🇨🇿" },
+        { code: "+421", country: "Eslovaquia", flag: "🇸🇰" },
+        { code: "+36", country: "Hungría", flag: "🇭🇺" },
+        { code: "+40", country: "Rumania", flag: "🇷🇴" },
+        { code: "+359", country: "Bulgaria", flag: "🇧�🇬" },
+        { code: "+7", country: "Rusia", flag: "�🇺" },
+        { code: "+380", country: "Ucrania", flag: "🇺🇦" },
+        { code: "+375", country: "Bielorrusia", flag: "�🇧🇾" },
+        
+        // Europa del Sur
+        { code: "+30", country: "Grecia", flag: "🇬🇷" },
+        { code: "+385", country: "Croacia", flag: "🇭🇷" },
+        { code: "+386", country: "Eslovenia", flag: "🇸🇮" },
+        { code: "+381", country: "Serbia", flag: "🇷🇸" },
+        { code: "+382", country: "Montenegro", flag: "🇲🇪" },
+        { code: "+389", country: "Macedonia del Norte", flag: "🇲🇰" },
+        { code: "+355", country: "Albania", flag: "🇦🇱" },
+        
+        // Asia Oriental
+        { code: "+86", country: "China", flag: "🇨🇳" },
+        { code: "+81", country: "Japón", flag: "🇯🇵" },
+        { code: "+82", country: "Corea del Sur", flag: "🇰🇷" },
+        { code: "+850", country: "Corea del Norte", flag: "🇰🇵" },
+        { code: "+886", country: "Taiwán", flag: "🇹🇼" },
+        { code: "+852", country: "Hong Kong", flag: "🇭🇰" },
+        { code: "+853", country: "Macao", flag: "🇲🇴" },
+        { code: "+976", country: "Mongolia", flag: "🇲🇳" },
+        
+        // Sudeste Asiático
+        { code: "+66", country: "Tailandia", flag: "🇹🇭" },
+        { code: "+84", country: "Vietnam", flag: "🇻🇳" },
+        { code: "+60", country: "Malasia", flag: "🇲🇾" },
+        { code: "+65", country: "Singapur", flag: "🇸🇬" },
+        { code: "+62", country: "Indonesia", flag: "🇮🇩" },
+        { code: "+63", country: "Filipinas", flag: "🇵🇭" },
+        { code: "+95", country: "Myanmar", flag: "🇲🇲" },
+        { code: "+856", country: "Laos", flag: "🇱🇦" },
+        { code: "+855", country: "Camboya", flag: "🇰🇭" },
+        { code: "+673", country: "Brunéi", flag: "🇧🇳" },
+        
+        // Asia del Sur
+        { code: "+91", country: "India", flag: "�🇳" },
+        { code: "+92", country: "Pakistán", flag: "🇵🇰" },
+        { code: "+880", country: "Bangladés", flag: "🇧🇩" },
+        { code: "+94", country: "Sri Lanka", flag: "🇱🇰" },
+        { code: "+977", country: "Nepal", flag: "🇳🇵" },
+        { code: "+975", country: "Bután", flag: "🇧🇹" },
+        { code: "+960", country: "Maldivas", flag: "🇲🇻" },
+        { code: "+93", country: "Afganistán", flag: "🇦�🇫" },
+        
+        // Medio Oriente
+        { code: "+98", country: "Irán", flag: "🇮🇷" },
+        { code: "+964", country: "Irak", flag: "🇮🇶" },
+        { code: "+966", country: "Arabia Saudita", flag: "🇸🇦" },
+        { code: "+971", country: "Emiratos Árabes Unidos", flag: "🇦🇪" },
+        { code: "+965", country: "Kuwait", flag: "🇰🇼" },
+        { code: "+974", country: "Catar", flag: "🇶🇦" },
+        { code: "+973", country: "Baréin", flag: "🇧🇭" },
+        { code: "+968", country: "Omán", flag: "🇴🇲" },
+        { code: "+967", country: "Yemen", flag: "�🇪" },
+        { code: "+962", country: "Jordania", flag: "🇯🇴" },
+        { code: "+961", country: "Líbano", flag: "🇱🇧" },
+        { code: "+963", country: "Siria", flag: "🇸🇾" },
+        { code: "+972", country: "Israel", flag: "🇮🇱" },
+        { code: "+970", country: "Palestina", flag: "🇵🇸" },
+        { code: "+90", country: "Turquía", flag: "🇹🇷" },
+        
+        // África del Norte
+        { code: "+20", country: "Egipto", flag: "🇪🇬" },
+        { code: "+212", country: "Marruecos", flag: "🇲🇦" },
+        { code: "+213", country: "Argelia", flag: "🇩🇿" },
+        { code: "+216", country: "Túnez", flag: "🇹🇳" },
+        { code: "+218", country: "Libia", flag: "🇱🇾" },
+        { code: "+249", country: "Sudán", flag: "🇸🇩" },
+        
+        // África Occidental
+        { code: "+234", country: "Nigeria", flag: "🇳🇬" },
+        { code: "+233", country: "Ghana", flag: "�🇭" },
+        { code: "+225", country: "Costa de Marfil", flag: "🇨�🇮" },
+        { code: "+221", country: "Senegal", flag: "🇸�" },
+        { code: "+223", country: "Malí", flag: "🇲🇱" },
+        { code: "+226", country: "Burkina Faso", flag: "🇧🇫" },
+        { code: "+227", country: "Níger", flag: "🇳🇪" },
+        { code: "+228", country: "Togo", flag: "🇹🇬" },
+        { code: "+229", country: "Benín", flag: "🇧🇯" },
+        
+        // África Oriental
+        { code: "+254", country: "Kenia", flag: "🇰🇪" },
+        { code: "+255", country: "Tanzania", flag: "�🇹🇿" },
+        { code: "+256", country: "Uganda", flag: "🇺🇬" },
+        { code: "+250", country: "Ruanda", flag: "🇷🇼" },
+        { code: "+251", country: "Etiopía", flag: "🇪🇹" },
+        { code: "+252", country: "Somalia", flag: "🇸🇴" },
+        
+        // África del Sur
+        { code: "+27", country: "Sudáfrica", flag: "🇿🇦" },
+        { code: "+264", country: "Namibia", flag: "🇳🇦" },
+        { code: "+267", country: "Botsuana", flag: "🇧🇼" },
+        { code: "+268", country: "Esuatini", flag: "🇸🇿" },
+        { code: "+260", country: "Zambia", flag: "🇿🇲" },
+        { code: "+263", country: "Zimbabue", flag: "🇿🇼" },
+        { code: "+258", country: "Mozambique", flag: "🇲🇿" },
+        
+        // Oceanía
+        { code: "+61", country: "Australia", flag: "🇦🇺" },
+        { code: "+64", country: "Nueva Zelanda", flag: "🇳🇿" },
+        { code: "+679", country: "Fiyi", flag: "�🇯" },
+        { code: "+675", country: "Papúa Nueva Guinea", flag: "�🇵�" },
+    ];
+
     const navigateToHome = () => {
 
         router.push('/main-menu');
@@ -138,12 +309,15 @@ export default function RegisterUser() {
             return;
         }
 
-        // Phone number format validation (simple check for now)
-        const phoneRegex = /^[0-9]{9}$/; // Assumes 10-digit phone number
+        // Phone number format validation (7-15 digits without country code)
+        const phoneRegex = /^[0-9]{7,15}$/;
         if (!phoneRegex.test(phoneNumber)) {
-            setValidationError("El número de teléfono debe tener 9 dígitos");
+            setValidationError("El número de teléfono debe tener entre 7 y 15 dígitos");
             return;
         }
+
+        // Combine country code with phone number for storage
+        const fullPhoneNumber = countryCode + phoneNumber;
 
         // Validar que el usuario tenga al menos 18 años
         const today = new Date();
@@ -172,7 +346,7 @@ export default function RegisterUser() {
             }
 
             // Check if phone number already exists
-            const phoneExists = await checkPhoneExists(phoneNumber);
+            const phoneExists = await checkPhoneExists(fullPhoneNumber);
             if (phoneExists) {
                 setValidationError("Este número de teléfono ya está registrado");
                 setLoading(false);
@@ -204,7 +378,7 @@ export default function RegisterUser() {
                     avatar_url: uploadedUrl,
                     name: name,
                     birth_date: birthDate.toISOString().split('T')[0],
-                    phone_number: phoneNumber,
+                    phone_number: fullPhoneNumber,
                     email: email,
                     gender: gender,
                     sexual_preference: sexualPreference,
@@ -296,18 +470,33 @@ export default function RegisterUser() {
                             />
 
                             <Text style={styles.inputLabel}>Número de Teléfono</Text>
-                            <TextInput
-                                style={styles.input}
-                                label="Teléfono"
-                                value={phoneNumber}
-                                onChangeText={setPhoneNumber}
-                                mode="outlined"
-                                keyboardType="phone-pad"
-                                outlineColor="#ddd"
-                                activeOutlineColor="#fb8436"
-                                theme={{ colors: { primary: '#fb8436' } }}
-                                maxLength={10}
-                            />
+                            <View style={styles.phoneContainer}>
+                                <View style={styles.countryCodeWrapper}>
+                                    <TouchableOpacity
+                                        style={styles.countryCodeSelector}
+                                        onPress={() => setCountryModalVisible(true)}
+                                    >
+                                        <Text style={styles.countryCodeText}>{countryCode}</Text>
+                                        <Ionicons name="chevron-down" size={20} color="#666" />
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={{ width: 10 }} />
+                                <View style={styles.phoneInputWrapper}>
+                                    <TextInput
+                                        style={[styles.input, styles.phoneInput]}
+                                        label="Teléfono"
+                                        value={phoneNumber}
+                                        onChangeText={setPhoneNumber}
+                                        mode="outlined"
+                                        keyboardType="phone-pad"
+                                        outlineColor="#ddd"
+                                        activeOutlineColor="#fb8436"
+                                        theme={{ colors: { primary: '#fb8436' } }}
+                                        maxLength={15}
+                                        placeholder="Número sin código"
+                                    />
+                                </View>
+                            </View>
 
                             <Text style={styles.inputLabel}>Contraseña</Text>
                             <TextInput
@@ -554,6 +743,43 @@ export default function RegisterUser() {
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
+
+            {/* Modal de Selección de País */}
+            <Modal
+                visible={isCountryModalVisible}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setCountryModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>Selecciona el Código de País</Text>
+                            <TouchableOpacity onPress={() => setCountryModalVisible(false)}>
+                                <Ionicons name="close" size={28} color="#333" />
+                            </TouchableOpacity>
+                        </View>
+                        <ScrollView style={styles.modalScrollView}>
+                            {countryCodes.map((item) => (
+                                <TouchableOpacity
+                                    key={item.code}
+                                    style={styles.countryOption}
+                                    onPress={() => {
+                                        setCountryCode(item.code);
+                                        setCountryModalVisible(false);
+                                    }}
+                                >
+                                    <Text style={styles.countryOptionCode}>{item.code}</Text>
+                                    <Text style={styles.countryOptionName}>{item.country}</Text>
+                                    {countryCode === item.code && (
+                                        <Ionicons name="checkmark" size={24} color="#fb8436" />
+                                    )}
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -751,5 +977,87 @@ const styles = StyleSheet.create({
         fontSize: 16,
         paddingHorizontal: 10,
         backgroundColor: '#fff',
+    },
+    phoneContainer: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        marginBottom: 20,
+    },
+    countryCodeWrapper: {
+        width: 110,
+    },
+    countryCodeLabel: {
+        fontSize: 12,
+        color: '#666',
+        marginBottom: 4,
+        fontWeight: '500',
+    },
+    countryCodeSelector: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 4,
+        backgroundColor: '#fff',
+        height: 56,
+        paddingHorizontal: 12,
+    },
+    countryCodeText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#333',
+    },
+    phoneInputWrapper: {
+        flex: 1,
+    },
+    phoneInput: {
+        marginBottom: 0,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'flex-end',
+    },
+    modalContent: {
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        maxHeight: '80%',
+        paddingBottom: 20,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    modalScrollView: {
+        maxHeight: 500,
+    },
+    countryOption: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f0f0f0',
+    },
+    countryOptionCode: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#fb8436',
+        width: 70,
+    },
+    countryOptionName: {
+        flex: 1,
+        fontSize: 15,
+        color: '#333',
     },
 });
