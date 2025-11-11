@@ -125,7 +125,7 @@ export default function RegisterUser() {
         }
     };
 
-    // Country codes data - comprehensive list
+    // Country codes data - alphabetically sorted
     const countryCodes = [
         // América del Norte
         { code: "+1", country: "Estados Unidos/Canadá", flag: "🇺🇸" },
@@ -291,7 +291,7 @@ export default function RegisterUser() {
         { code: "+64", country: "Nueva Zelanda", flag: "🇳🇿" },
         { code: "+679", country: "Fiyi", flag: "�🇯" },
         { code: "+675", country: "Papúa Nueva Guinea", flag: "�🇵�" },
-    ];
+    ].sort((a, b) => a.country.localeCompare(b.country, 'es'));
 
     const navigateToHome = () => {
 
