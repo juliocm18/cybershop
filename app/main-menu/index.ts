@@ -1,84 +1,51 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions, Alert } from 'react-native';
-import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions, Alert, Image, ImageSourcePropType } from 'react-native';
 import { router, useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 import MediaNaranjaLoginModal from '../media-naranja/components/LoginModal';
 import { supabase } from '../supabase';
+import BackButton from '../components/BackButton';
 
 // Define your menu items here
 interface MenuItem {
   key: string;
-  title: string;
-  iconType: 'Ionicons' | 'MaterialIcons' | 'FontAwesome';
-  icon: string;
-  description: string;
-  color: string;
+  image: ImageSourcePropType;
   link: string;
 }
 
 const MENU_ITEMS: MenuItem[] = [
   {
     key: 'shop',
-    title: 'Catálogo',
-    iconType: 'Ionicons',
-    icon: 'cart',
-    description: 'Busca tiendas, establecimientos, plataformas afiliadas y mucho más.',
-    color: '#4a90e2',
+    image: require('../../assets/images/apps/mall2.jpeg'),
     link: '/home/home'
-    },
+  },
   {
     key: 'orders',
-    title: 'Chat',
-    iconType: 'MaterialIcons',
-    icon: 'receipt-long',
-    description: 'Conecta con muchas más personas de tu localidad o en el mundo.',
-    color: '#50e3c2',
+    image: require('../../assets/images/apps/chat.jpeg'),
     link: '/chatroom'
   },
   {
     key: 'profile',
-    title: 'Media Naranja',
-    iconType: 'FontAwesome',
-    icon: 'user-circle',
-    description: 'Encuentra a esas personas que buscan lo mismo que tú.',
-    color: '#f5a623',
+    image: require('../../assets/images/apps/media-naranja.jpeg'),
     link: '/media-naranja/Home'
   },
   {
     key: 'games',
-    title: 'Juegos',
-    iconType: 'Ionicons',
-    icon: 'game-controller',
-    description: 'Diviértete con nuestros juegos disponibles.',
-    color: '#9c27b0',
+    image: require('../../assets/images/apps/mall.jpeg'),
     link: ''
   },
-  {
-    key: 'wallet',
-    title: 'Billetera Virtual',
-    iconType: 'Ionicons',
-    icon: 'wallet',
-    description: 'Gestiona tu dinero digital de forma segura.',
-    color: '#4caf50',
-    link: ''
-  },  
-  {
-    key: 'support',
-    title: 'Soporte',
-    iconType: 'Ionicons',
-    icon: 'help-buoy',
-    description: 'Manda un mensaje al soporte.',
-    color: '#d0021b',
-    link: ''
-  },
+  // {
+  //   key: 'wallet',
+  //   image: require('../../assets/images/apps/mall.jpeg'),
+  //   link: ''
+  // },  
+  // {
+  //   key: 'support',
+  //   image: require('../../assets/images/apps/mall.jpeg'),
+  //   link: ''
+  // },
 ];
 
-const ICON_MAP = {
-  Ionicons,
-  MaterialIcons,
-  FontAwesome,
-};
 
 const numColumns = 2;
 const ITEM_SIZE = (Dimensions.get('window').width - 48) / numColumns;
@@ -90,11 +57,10 @@ interface MenuSquareProps {
 }
 
 const MenuSquare: React.FC<MenuSquareProps> = ({ item, onMediaNaranjaPress, onChatPress }) => {
-  const IconComponent = ICON_MAP[item.iconType];
   return React.createElement(
     TouchableOpacity,
     {
-      style: [styles.square, { backgroundColor: item.color }],
+      style: styles.square,
       onPress: () => {
         if (item.link === '') {
           Alert.alert("Aviso","Estamos trabajando en esta funcionalidad");
@@ -107,9 +73,7 @@ const MenuSquare: React.FC<MenuSquareProps> = ({ item, onMediaNaranjaPress, onCh
         }
       },
     },
-    React.createElement(IconComponent as typeof Ionicons, { name: item.icon as keyof typeof Ionicons.glyphMap, size: 38, color: "#fff", style: styles.icon }),
-    React.createElement(Text, { style: styles.title }, item.title),
-    React.createElement(Text, { style: styles.description }, item.description)
+    React.createElement(Image, { source: item.image, style: styles.image, resizeMode: 'cover' })
   );
 };
 
@@ -166,9 +130,17 @@ const MainMenu: React.FC = () => {
     View,
     { style: styles.container },
     React.createElement(
-      Text,
-      { style: styles.header },
-      'Seleccione su App Favorita'
+      View,
+      { style: styles.headerContainer },
+      React.createElement(BackButton, {
+        route: '/',
+        style: { marginRight: 10 }
+      }),
+      React.createElement(
+        Text,
+        { style: styles.header },
+        'Seleccione su Aplicativo'
+      )
     ),
     React.createElement(
       FlatList as new () => FlatList<MenuItem>,
@@ -200,10 +172,18 @@ export default MainMenu;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#fb8436',
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 32,
+    paddingTop: 30,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    marginBottom: 16,
   },
   menuGrid: {
     alignItems: 'center',
@@ -219,34 +199,21 @@ const styles = StyleSheet.create({
     height: ITEM_SIZE,
     borderRadius: 18,
     margin: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+    overflow: 'hidden',
     elevation: 3,
     shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 8,
-    padding: 14,
   },
-  icon: {
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  description: {
-    fontSize: 13,
-    color: '#f5f5f5',
-    textAlign: 'center',
+  image: {
+    width: '100%',
+    height: '100%',
   },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#fff',
     marginBottom: 16,
     textAlign: 'center',
     marginTop: 25,
