@@ -28,6 +28,7 @@ import continentsData from "../data/continents.json";
 import countriesData from "../data/countries.json";
 import departmentsData from "../data/departments.json";
 import { useAuth } from "../context/AuthContext";
+import BackButton from "../components/BackButton";
 export default function Index() {
   const [users, setUsers] = useState<User[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -85,7 +86,7 @@ export default function Index() {
   }, [country]);
 
   const loadUsers = async () => {
-    const data = await UserFunctions.getAll();
+    const data = await UserFunctions.getAllAdministratives();
     if (data) setUsers(data);
   };
 
@@ -202,7 +203,13 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Administración de Usuarios</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginBottom: 10 }}>
+        <BackButton 
+          route="/adminhome" 
+          style={{ marginRight: 10 }}
+        />
+        <Text style={styles.title}>Administración de Usuarios</Text>
+      </View>
       <Button
         title="Agregar Usuario"
         onPress={() => handleAdd()}
@@ -297,21 +304,12 @@ export default function Index() {
             {editingId && (
               <>
                 <Text style={styles.label}>{email}</Text>
-                <View style={styles.input}>
-                  <Text style={styles.label}>Rol</Text>
-                  <Picker
-                    selectedValue={roleId}
-                    onValueChange={(itemValue) => setRoleId(itemValue)}
-                  >
-                    {roles.map((role) => (
-                      <Picker.Item
-                        key={role.id}
-                        label={role.name}
-                        value={role.id}
-                      />
-                    ))}
-                  </Picker>
-                </View>
+                <Select
+                  label="Rol"
+                  selectedValue={roleId}
+                  onValueChange={(itemValue) => setRoleId(typeof itemValue === 'number' ? itemValue : null)}
+                  items={roles}
+                />
               </>
             )}
 

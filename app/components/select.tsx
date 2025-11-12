@@ -5,9 +5,9 @@ import { Picker } from "@react-native-picker/picker";
 
 interface SelectProps {
   label: string;
-  selectedValue: string;
-  onValueChange: (itemValue: string) => void;
-  items: { id: string; name: string }[];
+  selectedValue: string | number | null;
+  onValueChange: (itemValue: string | number) => void;
+  items: { id?: string | number; name: string }[];
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -40,12 +40,14 @@ const Select: React.FC<SelectProps> = ({
             <View style={styles.modalContent}>
               <FlatList
                 data={[{ id: '', name: `-- SELECCIONA ${label.toUpperCase()} --` }, ...items]}
-                keyExtractor={item => item.id}
+                keyExtractor={(item, index) => item.id?.toString() || index.toString()}
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={styles.modalItem}
                     onPress={() => {
-                      onValueChange(item.id);
+                      if (item.id !== '' && item.id !== undefined) {
+                        onValueChange(item.id);
+                      }
                       setModalVisible(false);
                     }}
                   >
@@ -74,9 +76,9 @@ const Select: React.FC<SelectProps> = ({
           label={`-- SELECCIONA ${label.toUpperCase()} --`}
           value=""
         />
-        {items.map((item) => (
+        {items.map((item, index) => (
           <Picker.Item
-            key={item.id}
+            key={item.id?.toString() || index.toString()}
             label={item.name}
             value={item.id}
           />

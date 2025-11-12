@@ -54,6 +54,47 @@ export default class UserFunctions {
     return response1;
   };
 
+  static getAllAdministratives = async (): Promise<User[]> => {
+    const {data} = await supabase.auth.getSession();
+    //console.log(data?.session?.access_token);
+    // token example: "eyJhbGciOiJIUzI1NiIsImtpZCI6IllBZi8rQzVYUEcvYVdyb04iLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL210bWlrcG9ibGZzbHpoYXN0Y3lqLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJiYjM1M2UwOS0zMGIyLTQ2ZDYtOWNmNy0yYzg4YTJlNTU0MzQiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzQxMjI2MjcyLCJpYXQiOjE3NDEyMjI2NzIsImVtYWlsIjoianVsaW9jZXNhcm0xOTkwQGdtYWlsLmNvbSIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWwiOiJqdWxpb2Nlc2FybTE5OTBAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwic3ViIjoiYmIzNTNlMDktMzBiMi00NmQ2LTljZjctMmM4OGEyZTU1NDM0In0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoicGFzc3dvcmQiLCJ0aW1lc3RhbXAiOjE3NDEyMjI2NzJ9XSwic2Vzc2lvbl9pZCI6ImJhNTI4ODRhLTU3ZjEtNDFkYS1hMjliLWM1ZDA3OGIxYzRlZiIsImlzX2Fub255bW91cyI6ZmFsc2V9.UXleh3BlslUmPmpah-H5R3wE1gUMwO6ci5b4GkiHNkU";
+    const userToken = data?.session?.access_token;
+
+    const usersFetch = await fetch(
+      "https://mtmikpoblfslzhastcyj.supabase.co/functions/v1/list-users",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`, // Enviar JWT en la cabecera
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    const users = await usersFetch.json();
+    const response1 = await Promise.all(
+      users.users.map(async (user: any) => {
+        const [roles, departments] = await Promise.all([
+          RoleFunctions.getByUser(user.id),
+          UserFunctions.getDepartmentsByUser(user.id),
+        ]);
+
+        return {
+          id: user.id,
+          email: user.email,
+          roles,
+          departments,
+        };
+      })
+    );
+    
+    // Filtrar usuarios que no tengan el rol "cliente"
+    const filteredUsers = response1.filter(user => 
+      !user.roles?.some((role: Role) => role.name.toLowerCase() === 'cliente')
+    );
+    
+    return filteredUsers;
+  };
+
   static remove = async (userId: string) => {
     const {data, error} = await supabase.auth.admin.deleteUser(userId);
     if (error) throw new Error(error.message);
@@ -66,6 +107,7 @@ export default class UserFunctions {
     roleId: number,
     userRoles: Role[]
   ): Promise<User | null> => {
+    console.log("userRoles",userRoles, "roleId", roleId)
     if (!userRoles || (userRoles[0].id || 0) < roleId) {
       throw new Error("No tienes permisos para realizar esta acción");
     }
