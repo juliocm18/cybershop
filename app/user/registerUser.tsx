@@ -36,6 +36,7 @@ export default function RegisterUser() {
     const [name, setName] = useState("");
     const [validationError, setValidationError] = useState<string | null>(null);
     const [isCountryModalVisible, setCountryModalVisible] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     // Nuevos estados para los campos obligatorios
     const [gender, setGender] = useState("");
@@ -130,7 +131,7 @@ export default function RegisterUser() {
         // América del Norte
         { code: "+1", country: "Estados Unidos/Canadá", flag: "🇺🇸" },
         { code: "+52", country: "México", flag: "🇲🇽" },
-        
+
         // América Central y Caribe
         { code: "+501", country: "Belice", flag: "🇧🇿" },
         { code: "+502", country: "Guatemala", flag: "🇬🇹" },
@@ -144,7 +145,7 @@ export default function RegisterUser() {
         { code: "+1-787", country: "Puerto Rico", flag: "🇵🇷" },
         { code: "+1-876", country: "Jamaica", flag: "🇯🇲" },
         { code: "+509", country: "Haití", flag: "🇭🇹" },
-        
+
         // América del Sur
         { code: "+54", country: "Argentina", flag: "🇦🇷" },
         { code: "+55", country: "Brasil", flag: "🇧🇷" },
@@ -159,7 +160,7 @@ export default function RegisterUser() {
         { code: "+597", country: "Surinam", flag: "🇸🇷" },
         { code: "+598", country: "Uruguay", flag: "🇺🇾" },
         { code: "+51", country: "Perú", flag: "🇵🇪" },
-        
+
         // Europa Occidental
         { code: "+34", country: "España", flag: "🇪🇸" },
         { code: "+33", country: "Francia", flag: "🇫🇷" },
@@ -173,14 +174,14 @@ export default function RegisterUser() {
         { code: "+352", country: "Luxemburgo", flag: "🇱🇺" },
         { code: "+41", country: "Suiza", flag: "🇨🇭" },
         { code: "+43", country: "Austria", flag: "🇦🇹" },
-        
+
         // Europa del Norte
         { code: "+45", country: "Dinamarca", flag: "🇩🇰" },
         { code: "+46", country: "Suecia", flag: "🇸🇪" },
         { code: "+47", country: "Noruega", flag: "🇳🇴" },
         { code: "+358", country: "Finlandia", flag: "🇫🇮" },
         { code: "+354", country: "Islandia", flag: "🇮🇸" },
-        
+
         // Europa del Este
         { code: "+48", country: "Polonia", flag: "�🇱" },
         { code: "+420", country: "República Checa", flag: "🇨🇿" },
@@ -191,7 +192,7 @@ export default function RegisterUser() {
         { code: "+7", country: "Rusia", flag: "�🇺" },
         { code: "+380", country: "Ucrania", flag: "🇺🇦" },
         { code: "+375", country: "Bielorrusia", flag: "�🇧🇾" },
-        
+
         // Europa del Sur
         { code: "+30", country: "Grecia", flag: "🇬🇷" },
         { code: "+385", country: "Croacia", flag: "🇭🇷" },
@@ -200,7 +201,7 @@ export default function RegisterUser() {
         { code: "+382", country: "Montenegro", flag: "🇲🇪" },
         { code: "+389", country: "Macedonia del Norte", flag: "🇲🇰" },
         { code: "+355", country: "Albania", flag: "🇦🇱" },
-        
+
         // Asia Oriental
         { code: "+86", country: "China", flag: "🇨🇳" },
         { code: "+81", country: "Japón", flag: "🇯🇵" },
@@ -210,7 +211,7 @@ export default function RegisterUser() {
         { code: "+852", country: "Hong Kong", flag: "🇭🇰" },
         { code: "+853", country: "Macao", flag: "🇲🇴" },
         { code: "+976", country: "Mongolia", flag: "🇲🇳" },
-        
+
         // Sudeste Asiático
         { code: "+66", country: "Tailandia", flag: "🇹🇭" },
         { code: "+84", country: "Vietnam", flag: "🇻🇳" },
@@ -222,7 +223,7 @@ export default function RegisterUser() {
         { code: "+856", country: "Laos", flag: "🇱🇦" },
         { code: "+855", country: "Camboya", flag: "🇰🇭" },
         { code: "+673", country: "Brunéi", flag: "🇧🇳" },
-        
+
         // Asia del Sur
         { code: "+91", country: "India", flag: "�🇳" },
         { code: "+92", country: "Pakistán", flag: "🇵🇰" },
@@ -232,7 +233,7 @@ export default function RegisterUser() {
         { code: "+975", country: "Bután", flag: "🇧🇹" },
         { code: "+960", country: "Maldivas", flag: "🇲🇻" },
         { code: "+93", country: "Afganistán", flag: "🇦�🇫" },
-        
+
         // Medio Oriente
         { code: "+98", country: "Irán", flag: "🇮🇷" },
         { code: "+964", country: "Irak", flag: "🇮🇶" },
@@ -249,7 +250,7 @@ export default function RegisterUser() {
         { code: "+972", country: "Israel", flag: "🇮🇱" },
         { code: "+970", country: "Palestina", flag: "🇵🇸" },
         { code: "+90", country: "Turquía", flag: "🇹🇷" },
-        
+
         // África del Norte
         { code: "+20", country: "Egipto", flag: "🇪🇬" },
         { code: "+212", country: "Marruecos", flag: "🇲🇦" },
@@ -257,7 +258,7 @@ export default function RegisterUser() {
         { code: "+216", country: "Túnez", flag: "🇹🇳" },
         { code: "+218", country: "Libia", flag: "🇱🇾" },
         { code: "+249", country: "Sudán", flag: "🇸🇩" },
-        
+
         // África Occidental
         { code: "+234", country: "Nigeria", flag: "🇳🇬" },
         { code: "+233", country: "Ghana", flag: "�🇭" },
@@ -268,7 +269,7 @@ export default function RegisterUser() {
         { code: "+227", country: "Níger", flag: "🇳🇪" },
         { code: "+228", country: "Togo", flag: "🇹🇬" },
         { code: "+229", country: "Benín", flag: "🇧🇯" },
-        
+
         // África Oriental
         { code: "+254", country: "Kenia", flag: "🇰🇪" },
         { code: "+255", country: "Tanzania", flag: "�🇹🇿" },
@@ -276,7 +277,7 @@ export default function RegisterUser() {
         { code: "+250", country: "Ruanda", flag: "🇷🇼" },
         { code: "+251", country: "Etiopía", flag: "🇪🇹" },
         { code: "+252", country: "Somalia", flag: "🇸🇴" },
-        
+
         // África del Sur
         { code: "+27", country: "Sudáfrica", flag: "🇿🇦" },
         { code: "+264", country: "Namibia", flag: "🇳🇦" },
@@ -285,7 +286,7 @@ export default function RegisterUser() {
         { code: "+260", country: "Zambia", flag: "🇿🇲" },
         { code: "+263", country: "Zimbabue", flag: "🇿🇼" },
         { code: "+258", country: "Mozambique", flag: "🇲🇿" },
-        
+
         // Oceanía
         { code: "+61", country: "Australia", flag: "🇦🇺" },
         { code: "+64", country: "Nueva Zelanda", flag: "🇳🇿" },
@@ -296,7 +297,7 @@ export default function RegisterUser() {
     const navigateToHome = () => {
 
         router.push('/main-menu');
-        
+
     };
 
     const handleSaveUser = async () => {
@@ -335,7 +336,7 @@ export default function RegisterUser() {
         setLoading(true);
         try {
 
-           
+
 
             // Check if email already exists
             const emailExists = await checkEmailExists(email);
@@ -389,13 +390,12 @@ export default function RegisterUser() {
                     accept_media_naranja: deseaMediaNaranja,
                 };
                 await UserFunctions.saveClientProfile(newProfile);
-                Alert.alert("Aviso", "Registro creado con éxito");
                 // Unsubscribe from all Supabase channels to prevent duplicate subscriptions
                 const allChannels = supabase.getChannels();
                 allChannels.forEach(channel => {
                     supabase.removeChannel(channel);
                 });
-                clearFields();
+                setShowSuccessModal(true);
             } else {
                 setValidationError("No se pudo obtener el usuario registrado. Por favor, intente iniciar sesión.");
             }
@@ -732,12 +732,12 @@ export default function RegisterUser() {
                                 style={[styles.registerButton]}
                                 onPress={navigateToHome}
                             >
-                                
+
                                 <View style={styles.buttonContent}>
                                     <Ionicons name="home-outline" size={20} color="#fff" style={styles.buttonIcon} />
                                     <Text style={styles.buttonText}>Ir al Menú de Apps</Text>
                                 </View>
-                               
+
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -777,6 +777,35 @@ export default function RegisterUser() {
                                 </TouchableOpacity>
                             ))}
                         </ScrollView>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Success Modal */}
+            <Modal
+                visible={showSuccessModal}
+                animationType="fade"
+                transparent={true}
+            >
+                <View style={styles.successModalOverlay}>
+                    <View style={styles.successModalContent}>
+                        <View style={styles.successIconContainer}>
+                            <Ionicons name="checkmark-circle" size={80} color="#4CAF50" />
+                        </View>
+                        <Text style={styles.successModalTitle}>¡Registro Exitoso!</Text>
+                        <Text style={styles.successModalMessage}>
+                            Tu cuenta ha sido creada con éxito. Serás redirigido a la página principal.
+                        </Text>
+                        <TouchableOpacity
+                            style={styles.successModalButton}
+                            onPress={() => {
+                                setShowSuccessModal(false);
+                                clearFields();
+                                router.push('/');
+                            }}
+                        >
+                            <Text style={styles.successModalButtonText}>Continuar</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </Modal>
@@ -1059,5 +1088,59 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 15,
         color: '#333',
+    },
+    successModalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    successModalContent: {
+        backgroundColor: '#fff',
+        borderRadius: 20,
+        padding: 30,
+        width: '85%',
+        maxWidth: 400,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
+        elevation: 10,
+    },
+    successIconContainer: {
+        marginBottom: 20,
+    },
+    successModalTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#4CAF50',
+        marginBottom: 15,
+        textAlign: 'center',
+    },
+    successModalMessage: {
+        fontSize: 16,
+        color: '#555',
+        textAlign: 'center',
+        marginBottom: 25,
+        lineHeight: 24,
+    },
+    successModalButton: {
+        backgroundColor: '#fb8436',
+        paddingVertical: 15,
+        paddingHorizontal: 40,
+        borderRadius: 10,
+        width: '100%',
+        alignItems: 'center',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+    },
+    successModalButtonText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
     },
 });
