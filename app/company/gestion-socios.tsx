@@ -241,11 +241,12 @@ const CompanyScreen = () => {
           return;
         }
 
-        console.log("isGlobal", isGlobal);
+        // Generate unique key from name + timestamp to avoid duplicate key constraint
+        const generatedKey = `${name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
         const newCompany = {
-          //key,
+          key: generatedKey,
           name,
-          //package: packageType,
+          package: packageType || "",
           logo: uploadedUrl,
           categories: categories.split(",").map((c) => c.trim()),
           priority: parseInt(priority),
@@ -398,8 +399,10 @@ const CompanyScreen = () => {
   };
 
   const handleSelectedLink = (linkId: number) => {
-    const link = links.find((link) => link.id === linkId);
-    setUrl(link?.prefix || "");
+    const selectedLink = links.find((link) => link.id === linkId);
+    setSelectedLinkId(linkId);
+    setLink(selectedLink);
+    setUrl(selectedLink?.prefix || "");
   };
 
   return (

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Platform, Modal, TouchableOpacity, FlatList } from "react-native";
-import { Text, HelperText } from "react-native-paper";
+import { View, StyleSheet, Platform, Modal, TouchableOpacity, FlatList, Text } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 
 interface SelectProps {
