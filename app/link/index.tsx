@@ -17,6 +17,7 @@ import { styles } from "./styles";
 import { FontAwesome } from "@expo/vector-icons";
 import { globalStyles } from "../styles";
 import ConfirmationModal from "../components/confirmation-modal";
+import BackButton from "../components/BackButton";
 
 export default function Index() {
   const [links, setLinks] = useState<Link[]>([]);
@@ -187,7 +188,13 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      <Text style={globalStyles.pageTitle}>Administración de Contactos</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginBottom: 10 }}>
+        <BackButton 
+          route="/adminhome" 
+          style={{ marginRight: 10 }}
+        />
+        <Text style={globalStyles.pageTitle}>Administración de Contactos</Text>
+      </View>
       <TouchableOpacity
         style={globalStyles.globalButton}
         onPress={handleAdd}

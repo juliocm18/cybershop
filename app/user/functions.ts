@@ -7,15 +7,40 @@ import {clientProfile, User} from "./model";
 export default class UserFunctions {
   static save = async (email: string, password: string): Promise<User> => {
     const OPERADOR = 1;
-    const {data, error} = await supabase.auth.signUp({email, password});
-    if (error) throw new Error(error.message);
-    if (!data.user) throw new Error("No hay data de usuario");
+    
+    // Obtener el token del usuario autenticado actual
+    const {data: sessionData} = await supabase.auth.getSession();
+    const userToken = sessionData?.session?.access_token;
+
+    // Crear usuario mediante función edge para no afectar la sesión actual
+    const response = await fetch(
+      "https://mtmikpoblfslzhastcyj.supabase.co/functions/v1/create-user",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({email, password}),
+      }
+    );
+
+    const result = await response.json();
+    
+    if (!response.ok || result.error) {
+      throw new Error(result.error || "Error al crear usuario");
+    }
+
+    const newUser = result.user;
+    if (!newUser) throw new Error("No hay data de usuario");
+    
     await supabase
       .from("user_role")
-      .insert({user_id: data.user.id, role_id: OPERADOR});
+      .insert({user_id: newUser.id, role_id: OPERADOR});
+      
     return {
-      id: data.user.id,
-      email: data.user.email || "",
+      id: newUser.id,
+      email: newUser.email || "",
     };
   };
 
@@ -107,8 +132,7 @@ export default class UserFunctions {
     roleId: number,
     userRoles: Role[]
   ): Promise<User | null> => {
-    console.log("userRoles",userRoles, "roleId", roleId)
-    if (!userRoles || (userRoles[0].id || 0) < roleId) {
+    if (!userRoles || (userRoles[0].id || 0) <= roleId) {
       throw new Error("No tienes permisos para realizar esta acción");
     }
     const {data, error} = await supabase

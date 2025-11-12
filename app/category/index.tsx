@@ -8,6 +8,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import {
   getCategories,
@@ -19,6 +20,7 @@ import {FontAwesome} from "@expo/vector-icons";
 import { globalStyles } from "../styles";
 import {Category} from "./types";
 import ConfirmationModal from "../components/confirmation-modal";
+import BackButton from "../components/BackButton";
 
 const Index = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -107,7 +109,13 @@ const Index = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={globalStyles.pageTitle}>Administración de Categorías</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginBottom: 10 }}>
+        <BackButton 
+          route="/adminhome" 
+          style={{ marginRight: 10 }}
+        />
+        <Text style={globalStyles.pageTitle}>Administración de Categorías</Text>
+      </View>
       <TextInput
         value={newCategory}
         onChangeText={setNewCategory}
@@ -178,7 +186,7 @@ const Index = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 35,
+    paddingTop: Platform.OS === 'ios' ? 60 : 35,
     padding: 20,
     paddingBottom: 40,
     backgroundColor: "#fff",

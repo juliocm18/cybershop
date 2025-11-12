@@ -44,6 +44,7 @@ import RoleFunctions from "../role/functions";
 import { globalStyles } from "../styles";
 import ConfirmationModal from "../components/confirmation-modal";
 import Select from "../components/select";
+import BackButton from "../components/BackButton";
 import { getCategories, getCategoriesOrderByName } from "../category/functions";
 import { Category } from "../category/types";
 
@@ -403,7 +404,13 @@ const CompanyScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={globalStyles.pageTitle}>Administración de S.E.</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginBottom: 10 }}>
+        <BackButton 
+          route="/adminhome" 
+          style={{ marginRight: 10 }}
+        />
+        <Text style={globalStyles.pageTitle}>Administración de S.E.</Text>
+      </View>
       
       <TouchableOpacity
         style={globalStyles.globalButton}

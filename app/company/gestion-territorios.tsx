@@ -28,6 +28,7 @@ import { useAuth } from "../context/AuthContext";
 import { globalStyles } from "../styles";
 import { Category } from "../category/types";
 import { getCategoriesOrderByName } from "../category/functions";
+import BackButton from "../components/BackButton";
 const GestionTerritorios = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [modalTerritoryVisible, setModalTerritoryVisible] = useState(false);
@@ -253,7 +254,13 @@ const GestionTerritorios = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={globalStyles.pageTitle}>Asignación de Territorios a S.E.</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginBottom: 10 }}>
+        <BackButton 
+          route="/adminhome" 
+          style={{ marginRight: 10 }}
+        />
+        <Text style={globalStyles.pageTitle}>Asignación de Territorios a S.E.</Text>
+      </View>
       <Select
         label="Filtrar por Categoría"
         selectedValue={selectedCategoyListItem}

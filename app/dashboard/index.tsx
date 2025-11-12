@@ -5,6 +5,7 @@ import {supabase} from "../supabase"; // Asegúrate de importar tu configuració
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import ChartData from "./chart-data";
 import {styles} from "./styles";
+import BackButton from "../components/BackButton";
 
 const options = [
   {value: "totalIngreso", display: "Total de Ingresos"},
@@ -172,7 +173,13 @@ const Dashboard = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Panel de Control</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginBottom: 10 }}>
+        <BackButton 
+          route="/adminhome" 
+          style={{ marginRight: 10 }}
+        />
+        <Text style={styles.title}>Panel de Control</Text>
+      </View>
 
       <View style={styles.datePickerContainer}>
         <TouchableOpacity style={styles.button} onPress={showStartDatePicker}>
