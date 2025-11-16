@@ -78,7 +78,6 @@ const CompanyScreen = () => {
 
   const [selectedLinkId, setSelectedLinkId] = useState<number>();
   const [priority, setPriority] = useState("");
-  const { session } = useAuth();
 
   /* Pagination */
   const [page, setPage] = useState(0);
@@ -89,6 +88,8 @@ const CompanyScreen = () => {
   const [categoryList, setCategoryList] = useState<Category[]>([]);
   const [selectedCategoyListItem, setSelectedCategoyListItem] = useState<string>("INTELIGENCIAS ARTIFICIALES");
   /* pagination end */
+  
+  const { session, loading: authLoading } = useAuth();
 
 
   const handlePickImage = async () => {
@@ -119,10 +120,13 @@ const CompanyScreen = () => {
   };
 
   useEffect(() => {
-    loadCompanies(true, selectedCategoyListItem);
-    loadLinks();
-    loadCategories();
-  }, []);
+    // Wait for session to be loaded before fetching data
+    if (session) {
+      loadCompanies(true, selectedCategoyListItem);
+      loadLinks();
+      loadCategories();
+    }
+  }, [session]);
 
   const loadCategories = async () => {
     const categories = await getCategoriesOrderByName();
@@ -132,50 +136,61 @@ const CompanyScreen = () => {
   const loadCompanies = async (reset: boolean = false, categoryName?: string) => {
     if (!categoryName && !selectedCategoyListItem) console.log("no hay categoria seleccionada");
     if (loadingMore) return;
+    
+    // Validate session before proceeding
+    if (!session?.user?.id) {
+      console.log("Session not available, skipping loadCompanies");
+      setLoadingMore(false);
+      return;
+    }
+    
     setLoadingMore(true);
     const from = reset ? 0 : page * pageSize;
     const to = from + pageSize - 1;
 
+    try {
+      const userDepartments = await UserFunctions.getDepartmentsByUser(
+        session.user.id
+      );
+      const userRoles = await RoleFunctions.getByUser(session.user.id);
+      
+      if (
+        userRoles?.some(
+          (role) => role.name === "CEO" || role.name === "Superadministrador"
+        )
+      ) {
+        const data = await getAllPagedByCategory(from, to, "name", categoryName || selectedCategoyListItem);
 
-    const userDepartments = await UserFunctions.getDepartmentsByUser(
-      session?.user?.id || ""
-    );
-    const userRoles = await RoleFunctions.getByUser(session?.user?.id || "");
-    if (
-      userRoles?.some(
-        (role) => role.name === "CEO" || role.name === "Superadministrador"
-      )
-    ) {
-      const data = await getAllPagedByCategory(from, to, "name", categoryName || selectedCategoyListItem);
+        if (reset) {
+          if (data) setCompanies(data);
+          setPage(1);
+        } else {
+          setCompanies((prevCompanies) => [...prevCompanies, ...(data || [])]);
+          setPage((prevPage) => prevPage + 1);
+        }
 
-      if (reset) {
-        if (data) setCompanies(data);
-        setPage(1);
+        setHasMore((data?.length || 0) === pageSize);
       } else {
-        setCompanies((prevCompanies) => [...prevCompanies, ...(data || [])]);
-        setPage((prevPage) => prevPage + 1);
+        const data = await fetchCompaniesByDepartments("name", userDepartments, from, to);
+
+        if (reset) {
+          if (data) setCompanies(data);
+          setPage(1);
+        } else {
+          setCompanies((prevCompanies) => [...prevCompanies, ...(data || [])]);
+          setPage((prevPage) => prevPage + 1);
+        }
+
+        setHasMore((data?.length || 0) === pageSize);
       }
-
-      setHasMore((data?.length || 0) === pageSize); // Si no hay más datos, detenemos la carga
-      setLoadingMore(false);
-
-
-
-    } else {
-      const data = await fetchCompaniesByDepartments("name", userDepartments, from, to);
-
-      if (reset) {
-        if (data) setCompanies(data);
-        setPage(1);
-      } else {
-        setCompanies((prevCompanies) => [...prevCompanies, ...(data || [])]);
-        setPage((prevPage) => prevPage + 1);
+    } catch (error: any) {
+      console.error("Error loading companies:", error);
+      // Don't show alert for auth errors during navigation
+      if (!error.message?.includes('Auth')) {
+        Alert.alert("Error", "No se pudieron cargar las empresas");
       }
-
-      setHasMore((data?.length || 0) === pageSize); // Si no hay más datos, detenemos la carga
+    } finally {
       setLoadingMore(false);
-
-
     }
   };
 
@@ -348,6 +363,10 @@ const CompanyScreen = () => {
       setCompanyLinks(companyLinks);
     } catch (error: any) {
       console.error("Error fetching company links:", error.message);
+      // Don't show alert for auth errors
+      if (!error.message?.includes('Auth')) {
+        Alert.alert("Error", "No se pudieron cargar los enlaces");
+      }
     }
   };
 
@@ -373,9 +392,9 @@ const CompanyScreen = () => {
 
   const handleDeleteLink = async (companyLinkId: number) => {
     try {
-      deleteCompanyLink(companyLinkId);
-      const companyLinks = await fetchCompanyLinks(companyId);
-      setCompanyLinks(companyLinks);
+      await deleteCompanyLink(companyLinkId);
+      // Update local state instead of fetching from server for better performance
+      setCompanyLinks(prevLinks => prevLinks.filter(link => link.id !== companyLinkId));
       setLink(undefined);
       setUrl("");
       setEditingLinkId(null);
@@ -404,6 +423,16 @@ const CompanyScreen = () => {
     setLink(selectedLink);
     setUrl(selectedLink?.prefix || "");
   };
+
+  // Show loading indicator while auth is initializing
+  if (authLoading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#fb8436" />
+        <Text style={{ marginTop: 10, color: '#666' }}>Cargando...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
