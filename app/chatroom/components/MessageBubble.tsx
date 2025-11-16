@@ -19,153 +19,195 @@ import * as IntentLauncher from 'expo-intent-launcher';
 
 const mediaStyles = StyleSheet.create({
   imageMessage: {
-    width: 200,
-    height: 200,
-    borderRadius: 10,
+    width: 240,
+    height: 240,
+    borderRadius: 16,
+    overflow: 'hidden',
   },
   mediaCaption: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 5,
+    fontSize: 11,
+    color: '#888',
+    marginTop: 6,
+    fontWeight: '500',
   },
   documentContainer: {
-    backgroundColor: '#f7f7f7',
-    padding: 10,
-    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   documentIconContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: '#e74c3c',
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: '#fff5f0',
   },
   documentInfo: {
-    marginLeft: 10,
+    flex: 1,
+    marginLeft: 12,
   },
   documentTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
   },
   documentMeta: {
     fontSize: 12,
-    color: '#666',
+    color: '#999',
+    fontWeight: '500',
   },
   videoContainer: {
-    width: '100%',
+    width: 260,
     height: 200,
-    borderRadius: 10,
+    borderRadius: 16,
     overflow: 'hidden',
   },
   videoPlaceholder: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#333',
+    backgroundColor: '#1a1a1a',
     justifyContent: 'center',
     alignItems: 'center',
   },
   videoDurationBadge: {
     position: 'absolute',
-    bottom: 10,
-    right: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    padding: 5,
-    borderRadius: 5,
+    bottom: 12,
+    right: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
   },
   videoDurationText: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#fff',
-    marginLeft: 5,
+    marginLeft: 4,
+    fontWeight: '600',
   },
   videoPlayer: {
-    width: 250,
-    height: 150,
-    borderRadius: 10,
+    width: 260,
+    height: 200,
+    borderRadius: 16,
     backgroundColor: '#000000',
   },
   videoThumbnail: {
     width: '100%',
     height: '100%',
-    borderRadius: 10,
   },
   playIconOverlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    borderRadius: 10,
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
   audioContainer: {
-    width: 200,
-    height: 50,
-    borderRadius: 10,
-    overflow: 'hidden',
-    backgroundColor: '#f7f7f7',
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: 240,
+    padding: 12,
+    borderRadius: 20,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   audioPlayButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: '#e74c3c',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#fb8436',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#fb8436',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   audioInfo: {
-    marginLeft: 10,
+    flex: 1,
+    marginLeft: 12,
   },
   audioWaveform: {
-    width: '100%',
-    height: 20,
+    height: 24,
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 4,
   },
   audioWaveformBar: {
-    width: 10,
-    backgroundColor: '#666',
-    marginHorizontal: 2,
+    width: 3,
+    backgroundColor: '#fb8436',
+    marginHorizontal: 1.5,
+    borderRadius: 2,
+    opacity: 0.7,
   },
   audioDuration: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 5,
+    fontSize: 11,
+    color: '#888',
+    marginTop: 4,
+    fontWeight: '600',
   },
   locationContainer: {
-    width: 200,
-    height: 150,
-    borderRadius: 10,
+    width: 260,
+    borderRadius: 16,
     overflow: 'hidden',
-    backgroundColor: '#f7f7f7',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
   },
   locationHeader: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    padding: 14,
+    backgroundColor: '#fff9f5',
     flexDirection: 'row',
     alignItems: 'center',
   },
   locationTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 15,
+    fontWeight: '600',
     marginLeft: 10,
+    color: '#333',
+    flex: 1,
   },
   locationAddress: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#666',
-    padding: 10,
+    padding: 14,
+    lineHeight: 18,
   },
   locationFooter: {
-    padding: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#ddd',
+    padding: 14,
+    backgroundColor: '#fafafa',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   locationLink: {
-    fontSize: 12,
-    color: '#4a6ea9',
+    fontSize: 13,
+    color: '#fb8436',
+    fontWeight: '600',
   },
   fullImageModalContainer: {
     flex: 1,
@@ -540,16 +582,20 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwnMess
     switch (message.message_type) {
       case 'image':
         return (
-          <TouchableOpacity onPress={() => setShowFullImage(true)}>
-            <Image
-              source={{ uri: message.media_info?.url }}
-              style={mediaStyles.imageMessage}
-              resizeMode="cover"
-            />
-            {message.media_info?.filename && (
+          <TouchableOpacity 
+            onPress={() => setShowFullImage(true)}
+            activeOpacity={0.9}
+          >
+            <View style={{ borderRadius: 16, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 4 }}>
+              <Image
+                source={{ uri: message.media_info?.url }}
+                style={mediaStyles.imageMessage}
+                resizeMode="cover"
+              />
+            </View>
+            {message.media_info?.filesize && (
               <Text style={mediaStyles.mediaCaption}>
-                {/*{message.media_info.filename} */}
-                ({formatFileSize(message.media_info.filesize)})
+                {formatFileSize(message.media_info.filesize)}
               </Text>
             )}
           </TouchableOpacity>
@@ -557,9 +603,13 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwnMess
 
       case 'pdf':
         return (
-          <TouchableOpacity style={mediaStyles.documentContainer} onPress={openPdfPreview}>
+          <TouchableOpacity 
+            style={mediaStyles.documentContainer} 
+            onPress={openPdfPreview}
+            activeOpacity={0.7}
+          >
             <View style={mediaStyles.documentIconContainer}>
-              <MaterialIcons name="picture-as-pdf" size={36} color="#e74c3c" />
+              <MaterialIcons name="picture-as-pdf" size={28} color="#fb8436" />
             </View>
             <View style={mediaStyles.documentInfo}>
               <Text style={mediaStyles.documentTitle} numberOfLines={1}>
@@ -569,47 +619,53 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwnMess
                 PDF • {formatFileSize(message.media_info?.filesize)}
               </Text>
             </View>
-            <Ionicons name="eye-outline" size={24} color="#fb8436" />
+            <View style={{ backgroundColor: '#fff5f0', padding: 8, borderRadius: 8 }}>
+              <Ionicons name="eye-outline" size={20} color="#fb8436" />
+            </View>
           </TouchableOpacity>
         );
 
       case 'video':
         return (
-          <View style={mediaStyles.videoContainer}>
-            {showVideoPlayer && message.media_info?.url ? (
-              <Video
-                source={{ uri: message.media_info.url }}
-                style={mediaStyles.videoPlayer}
-                resizeMode={ResizeMode.CONTAIN}
-                useNativeControls
-                shouldPlay
-                onFullscreenUpdate={async ({ fullscreenUpdate }) => {
-                  if (fullscreenUpdate === VideoFullscreenUpdate.PLAYER_DID_DISMISS) {
-                    setShowVideoPlayer(false);
-                  }
-                }}
-              />
-            ) : (
-              <TouchableOpacity onPress={() => setShowVideoPlayer(true)}>
-                <View style={mediaStyles.videoPlaceholder}>
-                  <Image source={{ uri: message.media_info?.thumbnail_url || message.media_info?.url }} style={mediaStyles.videoThumbnail} onError={() => console.log('Error loading thumbnail')} />
-                  <View style={mediaStyles.playIconOverlay}>
-                    <Ionicons name="play-circle" size={48} color="#ffffff" />
-                  </View>
-                  {message.media_info?.duration && (
-                    <View style={mediaStyles.videoDurationBadge}>
-                      <Ionicons name="time-outline" size={12} color="#ffffff" />
-                      <Text style={mediaStyles.videoDurationText}>
-                        {formatDuration(message.media_info.duration)}
-                      </Text>
+          <View style={{ borderRadius: 16, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 12, elevation: 5 }}>
+            <View style={mediaStyles.videoContainer}>
+              {showVideoPlayer && message.media_info?.url ? (
+                <Video
+                  source={{ uri: message.media_info.url }}
+                  style={mediaStyles.videoPlayer}
+                  resizeMode={ResizeMode.CONTAIN}
+                  useNativeControls
+                  shouldPlay
+                  onFullscreenUpdate={async ({ fullscreenUpdate }) => {
+                    if (fullscreenUpdate === VideoFullscreenUpdate.PLAYER_DID_DISMISS) {
+                      setShowVideoPlayer(false);
+                    }
+                  }}
+                />
+              ) : (
+                <TouchableOpacity onPress={() => setShowVideoPlayer(true)} activeOpacity={0.9}>
+                  <View style={mediaStyles.videoPlaceholder}>
+                    <Image source={{ uri: message.media_info?.thumbnail_url || message.media_info?.url }} style={mediaStyles.videoThumbnail} onError={() => console.log('Error loading thumbnail')} />
+                    <View style={mediaStyles.playIconOverlay}>
+                      <View style={{ backgroundColor: 'rgba(251, 132, 54, 0.95)', width: 64, height: 64, borderRadius: 32, justifyContent: 'center', alignItems: 'center' }}>
+                        <Ionicons name="play" size={32} color="#ffffff" style={{ marginLeft: 4 }} />
+                      </View>
                     </View>
-                  )}
-                </View>
-              </TouchableOpacity>
-            )}
-            {message.media_info?.filename && !showVideoPlayer && (
-              <Text style={mediaStyles.mediaCaption}>
-                {message.media_info.filename} ({formatFileSize(message.media_info.filesize)})
+                    {message.media_info?.duration && (
+                      <View style={mediaStyles.videoDurationBadge}>
+                        <Ionicons name="time-outline" size={11} color="#ffffff" />
+                        <Text style={mediaStyles.videoDurationText}>
+                          {formatDuration(message.media_info.duration)}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                </TouchableOpacity>
+              )}
+            </View>
+            {message.media_info?.filesize && !showVideoPlayer && (
+              <Text style={[mediaStyles.mediaCaption, { marginTop: 8 }]}>
+                {formatFileSize(message.media_info.filesize)}
               </Text>
             )}
           </View>
@@ -618,21 +674,25 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwnMess
       case 'audio':
         return (
           <View style={mediaStyles.audioContainer}>
-            <TouchableOpacity style={mediaStyles.audioPlayButton} onPress={handlePlayAudio}>
+            <TouchableOpacity 
+              style={mediaStyles.audioPlayButton} 
+              onPress={handlePlayAudio}
+              activeOpacity={0.8}
+            >
               {isAudioPlaying ? (
-                <Ionicons name="pause" size={24} color="#ffffff" />
+                <Ionicons name="pause" size={22} color="#ffffff" />
               ) : (
-                <Ionicons name="play" size={24} color="#ffffff" />
+                <Ionicons name="play" size={22} color="#ffffff" style={{ marginLeft: 2 }} />
               )}
             </TouchableOpacity>
             <View style={mediaStyles.audioInfo}>
               <View style={mediaStyles.audioWaveform}>
-                {Array.from({ length: 20 }).map((_, i) => (
+                {Array.from({ length: 30 }).map((_, i) => (
                   <View
                     key={`audio-bar-${message.id}-${i}`}
                     style={[
                       mediaStyles.audioWaveformBar,
-                      { height: 3 + Math.random() * 12 },
+                      { height: 4 + Math.random() * 16 },
                     ]}
                   />
                 ))}
@@ -646,11 +706,17 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwnMess
 
       case 'location':
         return (
-          <TouchableOpacity style={mediaStyles.locationContainer} onPress={openLocation}>
+          <TouchableOpacity 
+            style={mediaStyles.locationContainer} 
+            onPress={openLocation}
+            activeOpacity={0.8}
+          >
             <View style={mediaStyles.locationHeader}>
-              <Ionicons name="location" size={20} color="#e74c3c" />
-              <Text style={mediaStyles.locationTitle}>
-                {message.location_info?.name || 'Shared Location'}
+              <View style={{ backgroundColor: '#fb8436', width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name="location" size={18} color="#ffffff" />
+              </View>
+              <Text style={mediaStyles.locationTitle} numberOfLines={1}>
+                {message.location_info?.name || 'Ubicación Compartida'}
               </Text>
             </View>
             {message.location_info?.address && (
@@ -659,8 +725,10 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwnMess
               </Text>
             )}
             <View style={mediaStyles.locationFooter}>
-              <Text style={mediaStyles.locationLink}>Open in Maps</Text>
-              <Ionicons name="open-outline" size={16} color="#4a6ea9" />
+              <Text style={mediaStyles.locationLink}>Abrir en Mapas</Text>
+              <View style={{ backgroundColor: '#fff5f0', padding: 6, borderRadius: 6 }}>
+                <Ionicons name="arrow-forward" size={14} color="#fb8436" />
+              </View>
             </View>
           </TouchableOpacity>
         );
@@ -694,56 +762,88 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwnMess
         </View>
       )}
 
-      <View style={[baseStyles.messageBubble, isOwnMessage ? baseStyles.ownMessage : baseStyles.otherMessage]}>
-        {!isOwnMessage && (
-          <TouchableOpacity
-            onPress={() => {
-              if (onUserPress && message.user) {
-                onUserPress({
-                  id: message.user_id,
-                  name: message.user.name,
-                  avatar_url: message.user.avatar_url,
-                  alias: userAlias || undefined
-                });
-              }
+      <View style={{ position: 'relative', maxWidth: '85%' }}>
+        <View style={[baseStyles.messageBubble, isOwnMessage ? baseStyles.ownMessage : baseStyles.otherMessage, { position: 'relative', flexShrink: 0 }]}>
+          {/* Botón de opciones en la esquina superior derecha */}
+          <TouchableOpacity 
+            onPress={toggleOptions} 
+            style={{ 
+              position: 'absolute',
+              top: 4,
+              right: 4,
+              padding: 6,
+              zIndex: 10,
+              backgroundColor: isOwnMessage ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.05)',
+              borderRadius: 12,
             }}
-            disabled={isOwnMessage}
+            activeOpacity={0.6}
           >
-            <Text style={baseStyles.messageUserName}>
-              {userAlias || message.user?.name || 'Unknown'}
-            </Text>
+            <Ionicons name="ellipsis-horizontal" size={16} color={isOwnMessage ? '#fff' : '#999'} />
           </TouchableOpacity>
-        )}
 
-        {renderMessageContent()}
+          {!isOwnMessage && (
+            <TouchableOpacity
+              onPress={() => {
+                if (onUserPress && message.user) {
+                  onUserPress({
+                    id: message.user_id,
+                    name: message.user.name,
+                    avatar_url: message.user.avatar_url,
+                    alias: userAlias || undefined
+                  });
+                }
+              }}
+              disabled={isOwnMessage}
+            >
+              <Text style={baseStyles.messageUserName}>
+                {userAlias || message.user?.name || 'Unknown'}
+              </Text>
+            </TouchableOpacity>
+          )}
 
-        <View style={baseStyles.messageFooter}>
-          <TouchableOpacity onPress={toggleOptions} style={baseStyles.messageOptionsButton}>
-            <Ionicons name="ellipsis-horizontal" size={16} color="#999" />
-          </TouchableOpacity>
+          {renderMessageContent()}
+
+          {currentUserId && (
+            <MessageReactions messageId={message.id} currentUserId={currentUserId} />
+          )}
         </View>
 
-        {currentUserId && (
-          <MessageReactions messageId={message.id} currentUserId={currentUserId} />
-        )}
-
         {showOptions && (
-          <View style={[baseStyles.messageOptionsContainer, isOwnMessage ? baseStyles.ownMessageOptions : baseStyles.otherMessageOptions]}>
-            <TouchableOpacity style={baseStyles.messageOption} onPress={copyMessage}>
-              <Ionicons name="copy-outline" size={18} color="#666" />
-              <Text style={baseStyles.messageOptionText}>Copiar</Text>
+          <View style={[baseStyles.messageOptionsContainer, isOwnMessage ? baseStyles.ownMessageOptions : baseStyles.otherMessageOptions, { borderRadius: 12, paddingVertical: 4 }]}>
+            <TouchableOpacity 
+              style={[baseStyles.messageOption, { borderRadius: 8 }]} 
+              onPress={copyMessage}
+              activeOpacity={0.7}
+            >
+              <View style={{ backgroundColor: '#f5f5f5', padding: 6, borderRadius: 6 }}>
+                <Ionicons name="copy-outline" size={16} color="#666" />
+              </View>
+              <Text style={[baseStyles.messageOptionText, { fontWeight: '500' }]}>Copiar</Text>
             </TouchableOpacity>
             {isOwnMessage && (
-              <TouchableOpacity style={baseStyles.messageOption} onPress={deleteMessage} disabled={isDeleting}>
-                <Ionicons name="trash-outline" size={18} color="#ff6b6b" />
-                <Text style={[baseStyles.messageOptionText, { color: '#ff6b6b' }]}>
+              <TouchableOpacity 
+                style={[baseStyles.messageOption, { borderRadius: 8 }]} 
+                onPress={deleteMessage} 
+                disabled={isDeleting}
+                activeOpacity={0.7}
+              >
+                <View style={{ backgroundColor: '#fff5f5', padding: 6, borderRadius: 6 }}>
+                  <Ionicons name="trash-outline" size={16} color="#ff6b6b" />
+                </View>
+                <Text style={[baseStyles.messageOptionText, { color: '#ff6b6b', fontWeight: '500' }]}>
                   {isDeleting ? 'Eliminando...' : 'Eliminar'}
                 </Text>
               </TouchableOpacity>
             )}
-            <TouchableOpacity style={baseStyles.messageOption} onPress={openReportModal}>
-              <Ionicons name="flag-outline" size={18} color="#666" />
-              <Text style={baseStyles.messageOptionText}>Reportar</Text>
+            <TouchableOpacity 
+              style={[baseStyles.messageOption, { borderRadius: 8 }]} 
+              onPress={openReportModal}
+              activeOpacity={0.7}
+            >
+              <View style={{ backgroundColor: '#fff9f5', padding: 6, borderRadius: 6 }}>
+                <Ionicons name="flag-outline" size={16} color="#fb8436" />
+              </View>
+              <Text style={[baseStyles.messageOptionText, { fontWeight: '500' }]}>Reportar</Text>
             </TouchableOpacity>
           </View>
         )}

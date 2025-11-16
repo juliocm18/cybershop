@@ -223,9 +223,9 @@ export const styles = StyleSheet.create({
   },
   messageContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     marginVertical: 4,
-    paddingHorizontal: 8,
+    paddingHorizontal: 4,
     marginBottom: 30,
   },
   ownMessageContainer: {
@@ -235,16 +235,17 @@ export const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   messageAvatarContainer: {
-    marginHorizontal: 8,
+    marginHorizontal: 6,
   },
   messageAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
   },
   messageBubble: {
-    maxWidth: '70%',
+    alignSelf: 'flex-start',
     padding: 12,
+    paddingRight: 36,
     borderRadius: 16,
     marginVertical: 2,
   },
@@ -264,7 +265,8 @@ export const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: 16,
-    lineHeight: 20,
+    lineHeight: 22,
+    flexShrink: 1,
   },
   ownMessageText: {
     color: '#fff',

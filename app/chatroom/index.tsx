@@ -228,12 +228,12 @@ export default function ChatRoomScreen() {
           headerShown: true,
           title: showGroupsScreen ? 'Grupos' : (roomDetails?.is_private ? 'Chat Privado' : 'Chat Público'),
           headerRight: () => !showGroupsScreen && renderHeaderButtons(),
-          headerLeft: () => showGroupsScreen ? (
+          headerLeft: () => (
             <BackButton
               route="/main-menu"
               style={{ marginRight: 10 }}
             />
-          ) : undefined,
+          ),
         }}
       />
 
