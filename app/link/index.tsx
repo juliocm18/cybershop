@@ -117,7 +117,10 @@ export default function Index() {
   };
 
   const handleSave = async () => {
-    if (!name || !prefix) {
+    if(!prefix){
+      setPrefix("");
+    }
+    if (!name) {
       Alert.alert("Error", "Campos requeridos");
       return;
     }

@@ -180,7 +180,7 @@ const Home: React.FC = () => {
       <View style={styles.bottomButtonsContainer}>
         <TouchableOpacity
           style={styles.bottonButton}
-          onPress={() => router.push("../")}
+          onPress={() => router.push("/home/home")}
         >
           <Text style={styles.buttonText}>Ir a la Tienda</Text>
         </TouchableOpacity>

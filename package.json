@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
+    "start:clean": "expo start --clear",
     "start:dev": "expo start --offline",
     "clean:android": "npx expo clean:android",
     "run:android": "npx expo run:android",

@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import LoginModal from './components/LoginModal';
-import RecoverPasswordModal from './components/RecoverPasswordModal';
 import { View, StyleSheet, Animated, Platform, Text, TouchableOpacity } from 'react-native';
 import AppHeader from './components/AppHeader';
 import { getProfilesFromSupabase, handleLikeSupabase, handleNopeSupabase } from './data/profiles';
@@ -27,9 +25,6 @@ export default function Home() {
   const userEmail = session?.user?.email || '';
   const [userLoggedIn, setUserLoggedIn] = useState(false);
   const [userLoggedInfo, setUserLoggedInfo] = useState<loggedUserInfo | null>(null);
-  const [loginModalVisible, setLoginModalVisible] = useState(true);
-  const [recoverPasswordModalVisible, setRecoverPasswordModalVisible] = useState(false);
-  const [loginError, setLoginError] = useState<string | undefined>(undefined);
 
   const [index, setIndex] = useState(0);
   const [showDetail, setShowDetail] = useState(false);
@@ -81,7 +76,6 @@ export default function Home() {
     // Check if session exists
     if (session) {
       setUserLoggedIn(true);
-      setLoginModalVisible(false);
       setLoadingProfiles(true);
 
       // Fetch user profile data when session is available
@@ -97,9 +91,8 @@ export default function Home() {
         });
       });
     } else if (session === null) {
-      // User is definitely logged out - reset all states and redirect
+      // User is definitely logged out - reset all states and redirect to main menu
       setUserLoggedIn(false);
-      setLoginModalVisible(false);
       setUserLoggedInfo(null);
       setProfiles([]);
       setLoadingProfiles(false);
@@ -107,8 +100,6 @@ export default function Home() {
       setShowDetail(false);
       setMatchVisible(false);
       setMatchedProfile(null);
-      setLoginError(undefined);
-      // Redirect to main menu after logout
       router.replace('/main-menu');
     }
   }, [session]);
@@ -228,72 +219,10 @@ export default function Home() {
 
   if (!current) return null;
 
+  // If user is not logged in, redirect to main menu
   if (!userLoggedIn) {
-    return (
-      <>
-        <LoginModal
-          visible={loginModalVisible}
-          onLogin={async (username, password) => {
-
-            if (!username || !password) {
-              setLoginError('Campos Obligatorios');
-              return;
-            }
-
-            const { data, error } = await supabase.auth.signInWithPassword({
-              email: username,
-              password: password,
-            });
-
-            if (error) {
-              setLoginError('Usuario o contraseña incorrectos');
-              throw error;
-            }
-
-            const { data: profile, error: profileError } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', data.user?.id)
-              .single(); // como es solo un usuario
-
-            if (profileError) {
-              console.error("Error al obtener el perfil:", profileError.message);
-              return;
-            }
-
-            if (data.user && profile) {
-              setUserLoggedInfo(profile);
-              setUserLoggedIn(true);
-              setLoginModalVisible(false);
-              setLoginError(undefined);
-            } else {
-              setLoginError('Usuario o contraseña incorrectos');
-            }
-          }}
-          onClose={() => setLoginModalVisible(false)}
-          onGoToRegister={() => {
-            // Placeholder: navigate to register screen or show register modal
-            setLoginModalVisible(false);
-            router.push('/user/registerUser');
-          }}
-          onForgotPassword={() => {
-            setLoginModalVisible(false);
-            setRecoverPasswordModalVisible(true);
-          }}
-          error={loginError}
-        />
-
-
-        <RecoverPasswordModal
-          visible={recoverPasswordModalVisible}
-          onClose={() => {
-            setRecoverPasswordModalVisible(false);
-            setLoginModalVisible(true);
-          }}
-        />
-      </>
-
-    );
+    router.replace('/main-menu');
+    return null;
   }
 
   if (showDetail) {

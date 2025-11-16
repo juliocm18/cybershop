@@ -15,13 +15,14 @@ import GroupMembersModal from './components/GroupMembersModal';
 import MyChatsModal from './components/MyChatsModal';
 import GroupsScreen from './GroupsScreen';
 import ChatSidebar from './components/ChatSidebar';
+import BackButton from '../components/BackButton';
 
 export default function ChatRoomScreen() {
   const params = useLocalSearchParams();
   const roomIdParam = params.roomIdParam as string;
   const recipientIdParam = params.recipientId as string;
   const chatTypeParam = params.chatType as 'group' | 'individual';
-  
+
   const { session } = useAuth();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentRoomId, setCurrentRoomId] = useState<string>(roomIdParam);
@@ -34,8 +35,8 @@ export default function ChatRoomScreen() {
   const [pendingInvitationsCount, setPendingInvitationsCount] = useState(0);
   const [currentRoomIsPrivate, setCurrentRoomIsPrivate] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
-  const [roomDetails, setRoomDetails] = 
-  useState<{id: string, name: string, is_private: boolean, created_by: string} | null>(null);
+  const [roomDetails, setRoomDetails] =
+    useState<{ id: string, name: string, is_private: boolean, created_by: string } | null>(null);
 
   const updateUserStatus = async (userId: string, isOnline: boolean) => {
     try {
@@ -72,15 +73,15 @@ export default function ChatRoomScreen() {
     try {
       console.log("index:fetchRoomDetails: Fetching room details for room ID:", roomId)
       const { data, error } = await supabase
-      .from('rooms')
-      .select(`
+        .from('rooms')
+        .select(`
         id,
         name,
         is_private,
         created_by
       `)
-      .eq('id', roomId)
-      .single();
+        .eq('id', roomId)
+        .single();
       if (error) throw error;
       //console.log("index:fetchRoomDetails: Room details:", data)
       setRoomDetails(data);
@@ -197,7 +198,7 @@ export default function ChatRoomScreen() {
 
   const renderHeaderButtons = () => {
     if (!currentUser) return null;
-    
+
     return (
       <View style={styles.headerButtonsContainer}>
         <TouchableOpacity
@@ -228,12 +229,10 @@ export default function ChatRoomScreen() {
           title: showGroupsScreen ? 'Grupos' : (roomDetails?.is_private ? 'Chat Privado' : 'Chat Público'),
           headerRight: () => !showGroupsScreen && renderHeaderButtons(),
           headerLeft: () => showGroupsScreen ? (
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={handleBackFromGroups}
-            >
-              <Ionicons name="arrow-back" size={24} color="#fb8436" />             
-            </TouchableOpacity>
+            <BackButton
+              route="/main-menu"
+              style={{ marginRight: 10 }}
+            />
           ) : undefined,
         }}
       />
@@ -251,20 +250,20 @@ export default function ChatRoomScreen() {
               onParticipantSelect={handleParticipantSelect}
             />
           )}
-          
+
           <CreateGroupModal
             isVisible={isCreateGroupModalVisible}
             onClose={() => setIsCreateGroupModalVisible(false)}
             currentUserId={currentUser.id}
-            // onGroupCreated={(roomId) => {
-            //   console.log("🚀 ~ onGroupCreated ~ roomId:", roomId)              
-            //   setCurrentRoomId(roomId);
-            //   setChatType('group');
-            //   setSelectedRecipient(undefined);
-            //   setShowGroupsScreen(false); // Return to chat after creating a group
-            // }}
+          // onGroupCreated={(roomId) => {
+          //   console.log("🚀 ~ onGroupCreated ~ roomId:", roomId)              
+          //   setCurrentRoomId(roomId);
+          //   setChatType('group');
+          //   setSelectedRecipient(undefined);
+          //   setShowGroupsScreen(false); // Return to chat after creating a group
+          // }}
           />
-          
+
           {currentRoomId && (
             <GroupMembersModal
               isVisible={isGroupMembersModalVisible}
@@ -274,7 +273,7 @@ export default function ChatRoomScreen() {
               isGroupClosed={currentRoomIsPrivate}
             />
           )}
-          
+
           <GroupInvitationsModal
             isVisible={isInvitationsModalVisible}
             onClose={() => setIsInvitationsModalVisible(false)}
@@ -294,7 +293,7 @@ export default function ChatRoomScreen() {
             currentUserId={currentUser.id}
             onChatSelected={handleChatSelected}
           />
-          
+
           <ChatSidebar
             isVisible={isSidebarVisible}
             onClose={() => setIsSidebarVisible(false)}

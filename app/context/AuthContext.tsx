@@ -60,7 +60,33 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      // Remove all Supabase realtime channels to prevent memory leaks
+      const allChannels = supabase.getChannels();
+      allChannels.forEach(channel => {
+        supabase.removeChannel(channel);
+      });
+      
+      // Sign out from Supabase (this clears the session from storage)
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        // If the error is that session is already missing, that's fine
+        if (error.message !== 'Auth session missing!') {
+          console.error('Error during sign out:', error);
+        }
+      }
+      
+      // Always set session to null, regardless of errors
+      setSession(null);
+    } catch (error: any) {
+      console.error('Error in signOut:', error);
+      // Even if there's an error, clear the local session
+      setSession(null);
+      // Don't throw the error if it's just a missing session
+      if (error.message !== 'Auth session missing!') {
+        throw error;
+      }
+    }
   };
 
   const resetPassword = async (email: string) => {

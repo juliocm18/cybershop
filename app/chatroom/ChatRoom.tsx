@@ -216,6 +216,22 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
         return;
       }
 
+      // Verify that the user profile exists before sending message
+      const { data: profileExists, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', currentUser.id)
+        .single();
+
+      if (profileError || !profileExists) {
+        console.error('User profile not found:', profileError);
+        Alert.alert(
+          'Error',
+          'Tu perfil no existe en el sistema. Por favor, cierra sesión y vuelve a iniciar sesión.'
+        );
+        return;
+      }
+
       const messageData = {
         content,
         room_id: actualRoomId,

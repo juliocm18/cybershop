@@ -82,11 +82,13 @@ const MainMenu: React.FC = () => {
   const { session } = useAuth();
   const [loginModalVisible, setLoginModalVisible] = useState(false);
   const [loginError, setLoginError] = useState<string | undefined>(undefined);
+  const [pendingRoute, setPendingRoute] = useState<string | null>(null);
 
   const handleMediaNaranjaPress = () => {
     if (session) {
       router.push('/media-naranja/Home');
     } else {
+      setPendingRoute('/media-naranja/Home');
       setLoginModalVisible(true);
     }
   };
@@ -95,6 +97,7 @@ const MainMenu: React.FC = () => {
     if (session) {
       router.push('/chatroom');
     } else {
+      setPendingRoute('/chatroom');
       setLoginModalVisible(true);
     }
   };
@@ -117,9 +120,29 @@ const MainMenu: React.FC = () => {
       }
 
       if (data.user) {
+        // Verify that the user has a profile
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileError || !profile) {
+          // User doesn't have a profile, redirect to registration
+          setLoginError('Tu perfil no está completo. Por favor, completa tu registro.');
+          setLoginModalVisible(false);
+          setPendingRoute(null);
+          router.push('/user/registerUser');
+          return;
+        }
+
         setLoginModalVisible(false);
         setLoginError(undefined);
-        router.push('/media-naranja/Home');
+        // Redirect to the pending route or stay in main menu
+        if (pendingRoute) {
+          router.push(pendingRoute as any);
+          setPendingRoute(null);
+        }
       }
     } catch (error) {
       setLoginError('Error al iniciar sesión');
@@ -157,10 +180,19 @@ const MainMenu: React.FC = () => {
     React.createElement(MediaNaranjaLoginModal, {
       visible: loginModalVisible,
       onLogin: handleLogin,
-      onClose: () => setLoginModalVisible(false),
+      onClose: () => {
+        setLoginModalVisible(false);
+        setPendingRoute(null);
+      },
       onGoToRegister: () => {
         setLoginModalVisible(false);
+        setPendingRoute(null);
         router.push('/user/registerUser');
+      },
+      onForgotPassword: () => {
+        setLoginModalVisible(false);
+        setPendingRoute(null);
+        Alert.alert('Recuperar Contraseña', 'Funcionalidad en desarrollo');
       },
       error: loginError
     })
