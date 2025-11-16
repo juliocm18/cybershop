@@ -59,12 +59,89 @@ export const createCategory = async (
   }
 };
 
+export const updateCategoryInCompanies = async (
+  oldCategoryName: string,
+  newCategoryName: string
+): Promise<boolean> => {
+  try {
+    console.log(`🔄 Iniciando actualización de categoría: "${oldCategoryName}" → "${newCategoryName}"`);
+    
+    // Obtener TODAS las compañías (sin filtro)
+    const {data: allCompanies, error: fetchError} = await supabase
+      .from("company")
+      .select("id, name, categories");
+
+    if (fetchError) {
+      console.error("❌ Error obteniendo compañías:", fetchError);
+      throw fetchError;
+    }
+
+    console.log(`📊 Total de compañías en BD: ${allCompanies?.length || 0}`);
+
+    // Filtrar manualmente las que tienen la categoría antigua
+    const companiesToUpdate = allCompanies?.filter(company => 
+      company.categories && 
+      Array.isArray(company.categories) && 
+      company.categories.includes(oldCategoryName)
+    ) || [];
+
+    console.log(`🎯 Compañías que tienen "${oldCategoryName}": ${companiesToUpdate.length}`);
+    
+    if (companiesToUpdate.length > 0) {
+      console.log("📋 Compañías a actualizar:", companiesToUpdate.map(c => c.name));
+    }
+
+    if (companiesToUpdate.length === 0) {
+      console.log("ℹ️ No se encontraron compañías con la categoría:", oldCategoryName);
+      return true;
+    }
+
+    // Actualizar cada compañía
+    const updatePromises = companiesToUpdate.map(async (company) => {
+      // Reemplazar el nombre antiguo por el nuevo en el array
+      const updatedCategories = company.categories.map((cat: string) =>
+        cat === oldCategoryName ? newCategoryName : cat
+      );
+
+      // console.log(`  ↳ Actualizando "${company.name}":`, company.categories, "→", updatedCategories);
+
+      // Actualizar la compañía
+      const {error: updateError} = await supabase
+        .from("company")
+        .update({categories: updatedCategories})
+        .eq("id", company.id);
+
+      if (updateError) {
+        console.error(`❌ Error actualizando compañía ${company.name}:`, updateError);
+        throw updateError;
+      }
+    });
+
+    await Promise.all(updatePromises);
+    // console.log("✅ Todas las compañías actualizadas exitosamente");
+    return true;
+  } catch (error: any) {
+    console.error("❌ Error updating categories in companies:", error.message);
+    return false;
+  }
+};
+
 export const updateCategory = async (
   id: number,
   name: string,
-  priority: number
+  priority: number,
+  oldName?: string
 ): Promise<Category | null> => {
   try {
+    // Si el nombre cambió, actualizar también en las compañías
+    if (oldName && oldName !== name) {
+      console.log(`Actualizando categoría de "${oldName}" a "${name}" en compañías...`);
+      const companiesUpdated = await updateCategoryInCompanies(oldName, name);
+      if (!companiesUpdated) {
+        console.warn("Hubo problemas actualizando las compañías");
+      }
+    }
+
     const {data, error} = await supabase
       .from("category")
       .update({name, priority})
@@ -97,5 +174,6 @@ export default {
   getCategoryNames,
   createCategory,
   updateCategory,
+  updateCategoryInCompanies,
   deleteCategory,
 };

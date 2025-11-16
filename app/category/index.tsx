@@ -51,18 +51,19 @@ const Index = () => {
     setLoading(true);
 
     if (editingCategory) {
-      // Actualizar categoría
+      // Actualizar categoría (pasar el nombre antiguo para actualizar en compañías)
       const updatedCategory = await updateCategory(
         editingCategory.id,
         newCategory,
-        newPriority
+        newPriority,
+        editingCategory.name // Pasar el nombre antiguo
       );
       if (updatedCategory) {
         setNewCategory("");
         setNewPriority(0);
         setEditingCategory(null);
         loadCategories();
-        Alert.alert("Aviso", "Categoría actualizada");
+        Alert.alert("Aviso", "Categoría y compañías actualizadas");
         setLoading(false);
       }
     } else {
