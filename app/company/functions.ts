@@ -135,6 +135,58 @@ export const getAllPagedByCategory = async (from: number, to: number, order: str
   return data;
 };
 
+export const getAllPagedWithoutCategory = async (from: number, to: number, order: string) => {
+  // Obtener todas las categorías válidas
+  const {data: validCategories, error: catError} = await supabase
+    .from("category")
+    .select("name");
+  
+  if (catError) {
+    console.log("Error obteniendo categorías:", catError);
+    throw new Error(catError.message);
+  }
+  
+  const validCategoryNames = validCategories?.map(cat => cat.name) || [];
+  console.log("Categorías válidas:", validCategoryNames);
+  
+  // Obtener todas las compañías
+  const {data: allCompanies, error} = await supabase
+    .from("company")
+    .select("*")
+    .order(order, {ascending: true});
+  
+  if (error) { 
+    console.log(error);
+    throw new Error(error.message)
+  };
+  
+  // Filtrar las que:
+  // 1. No tienen categorías (null o undefined)
+  // 2. Tienen array vacío
+  // 3. Tienen categorías pero ninguna hace match con las categorías válidas
+  const companiesWithoutCategory = allCompanies?.filter(company => {
+    // Caso 1: No tiene categorías
+    if (!company.categories || company.categories.length === 0) {
+      return true;
+    }
+    
+    // Caso 2: Tiene categorías pero ninguna hace match con las válidas
+    const hasValidCategory = company.categories.some((cat: string) => 
+      validCategoryNames.includes(cat)
+    );
+    
+    return !hasValidCategory; // Retornar true si NO tiene ninguna categoría válida
+  }) || [];
+  
+  // Aplicar paginación manualmente
+  const paginatedData = companiesWithoutCategory.slice(from, to + 1);
+  
+  console.log("Total sin categoría o sin match:", companiesWithoutCategory.length);
+  console.log("Paginados:", paginatedData.length);
+  
+  return paginatedData;
+};
+
 export const getAllPagedByCategoryNoGlobal = async (from: number, to: number, order: string, categoryName: string) => {
   const {data, error} = await supabase
     .from("company")

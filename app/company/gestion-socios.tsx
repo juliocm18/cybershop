@@ -25,6 +25,7 @@ import {
   fetchCompanyLinks,
   getAllPaged,
   getAllPagedByCategory,
+  getAllPagedWithoutCategory,
   pickImage,
   updateCompany,
   updateCompanyLink,
@@ -86,7 +87,7 @@ const CompanyScreen = () => {
   const [hasMore, setHasMore] = useState(true);
 
   const [categoryList, setCategoryList] = useState<Category[]>([]);
-  const [selectedCategoyListItem, setSelectedCategoyListItem] = useState<string>("INTELIGENCIAS ARTIFICIALES");
+  const [selectedCategoyListItem, setSelectedCategoyListItem] = useState<string>("SIN ASIGNAR");
   /* pagination end */
   
   const { session, loading: authLoading } = useAuth();
@@ -130,7 +131,14 @@ const CompanyScreen = () => {
 
   const loadCategories = async () => {
     const categories = await getCategoriesOrderByName();
-    if (categories) setCategoryList(categories);
+    if (categories) {
+      // Agregar "Sin Asignar" al inicio de la lista
+      const categoriesWithUnassigned: Category[] = [
+        { id: -1, name: "SIN ASIGNAR", priority: 0 },
+        ...categories
+      ];
+      setCategoryList(categoriesWithUnassigned);
+    }
   };
 
   const loadCompanies = async (reset: boolean = false, categoryName?: string) => {
@@ -159,7 +167,17 @@ const CompanyScreen = () => {
           (role) => role.name === "CEO" || role.name === "Superadministrador"
         )
       ) {
-        const data = await getAllPagedByCategory(from, to, "name", categoryName || selectedCategoyListItem);
+        // Verificar si se seleccionó "Sin Asignar"
+        const selectedCategory = categoryName || selectedCategoyListItem;
+        let data;
+        
+        if (selectedCategory === "SIN ASIGNAR") {
+          // Cargar compañías sin categoría
+          data = await getAllPagedWithoutCategory(from, to, "name");
+        } else {
+          // Cargar compañías por categoría normal
+          data = await getAllPagedByCategory(from, to, "name", selectedCategory);
+        }
 
         if (reset) {
           if (data) setCompanies(data);
@@ -441,7 +459,7 @@ const CompanyScreen = () => {
           route="/adminhome" 
           style={{ marginRight: 10 }}
         />
-        <Text style={globalStyles.pageTitle}>Administración de S.E.</Text>
+        <Text style={globalStyles.pageTitle}>Administración de S.E. 11</Text>
       </View>
       
       <TouchableOpacity
