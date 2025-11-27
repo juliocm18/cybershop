@@ -11,6 +11,8 @@ export interface Company {
   is_global: boolean;
   departments: string[] | [];
   countries?: string[];
+  information?: string;
+  address?: string;
 }
 
 export interface CompanyLink {

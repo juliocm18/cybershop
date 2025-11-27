@@ -79,6 +79,8 @@ const CompanyScreen = () => {
 
   const [selectedLinkId, setSelectedLinkId] = useState<number>();
   const [priority, setPriority] = useState("");
+  const [information, setInformation] = useState("");
+  const [address, setAddress] = useState("");
 
   /* Pagination */
   const [page, setPage] = useState(0);
@@ -113,6 +115,8 @@ const CompanyScreen = () => {
     setPriority("");
     setEditingId(null);
     setIsGlobal(false);
+    setInformation("");
+    setAddress("");
   };
 
   const handleAddCompany = () => {
@@ -252,6 +256,8 @@ const CompanyScreen = () => {
           logo: uploadedUrl || "",
           categories: categories.split(",").map((c) => c.trim()),
           priority: parseInt(priority),
+          information: information || "",
+          address: address || "",
         };
         const updatedCategory = await updateCompany(editingId, newCompany);
 
@@ -284,6 +290,8 @@ const CompanyScreen = () => {
           categories: categories.split(",").map((c) => c.trim()),
           priority: parseInt(priority),
           is_global: isGlobal,
+          information: information || "",
+          address: address || "",
         };
 
         await createCompany(newCompany);
@@ -312,6 +320,8 @@ const CompanyScreen = () => {
     setPackageType(company.package);
     setLogoUri(company.logo);
     setCategories(company.categories.join(", "));
+    setInformation(company.information || "");
+    setAddress(company.address || "");
     setEditingImage(false);
     setModalVisible(true);
   };
@@ -540,6 +550,24 @@ const CompanyScreen = () => {
               style={styles.input}
               value={categories}
               onChangeText={setCategories}
+            />
+
+            <Text style={globalStyles.label}>Información</Text>
+            <TextInput
+              style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
+              value={information}
+              onChangeText={setInformation}
+              multiline
+              numberOfLines={4}
+              placeholder="Descripción de la empresa..."
+            />
+
+            <Text style={globalStyles.label}>Dirección</Text>
+            <TextInput
+              style={styles.input}
+              value={address}
+              onChangeText={setAddress}
+              placeholder="Dirección física de la empresa..."
             />
 
             <View style={{ marginTop: 15 }}>

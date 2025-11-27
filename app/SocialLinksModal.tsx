@@ -1,8 +1,9 @@
 import React from "react";
-import {View, Text, TouchableOpacity, Image, StyleSheet} from "react-native";
+import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import RNModal from "react-native-modal";
-import {CompanyLink} from "./company/company.interface";
-import {Ionicons} from "@expo/vector-icons";
+import { CompanyLink } from "./company/company.interface";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 interface SocialLinksModalProps {
   visible: boolean;
@@ -20,7 +21,7 @@ const SocialLinksModal: React.FC<SocialLinksModalProps> = ({
   onClose,
 }) => {
   const renderIcon = (key: string) => {
-    return <Image source={{uri: key}} style={styles.icon} resizeMode="cover" />;
+    return <Image source={{ uri: key }} style={styles.icon} resizeMode="cover" />;
   };
   return (
     <RNModal isVisible={visible} onBackdropPress={onClose}>
@@ -28,7 +29,16 @@ const SocialLinksModal: React.FC<SocialLinksModalProps> = ({
         <TouchableOpacity style={styles.closeButton} onPress={onClose}>
           <Ionicons name="close" size={24} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.title}>{company?.name || ""}</Text>
+        <TouchableOpacity 
+          style={styles.titleContainer}
+          onPress={() => {
+            onClose();
+            router.push(`/company/company-profile?id=${company?.id}`);
+          }}
+        >
+          <Text style={styles.title}>{company?.name || ""}</Text>
+          <Ionicons name="open-outline" size={20} color="#fc5f37ff" style={{ marginLeft: 8 }} />
+        </TouchableOpacity>
         <View style={styles.linksContainer}>
           {companyLinks.map((companyLink: CompanyLink) => (
             <TouchableOpacity
@@ -63,10 +73,15 @@ const styles = StyleSheet.create({
     zIndex: 1,
     padding: 5,
   },
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 10,
   },
   linksContainer: {
     flexDirection: "row",

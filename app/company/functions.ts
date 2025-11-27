@@ -252,6 +252,17 @@ export const fetchCompaniesByDepartmentsOrNull = async (
   return data;
 };
 
+// 📖 Obtener empresa por ID
+export const getCompanyById = async (companyId: number): Promise<Company | null> => {
+  const {data, error} = await supabase
+    .from("company")
+    .select("*")
+    .eq("id", companyId)
+    .single();
+  if (error) throw new Error(error.message);
+  return data;
+};
+
 // ✏️ Actualizar empresa
 export const updateCompany = async (
   companyId: number,

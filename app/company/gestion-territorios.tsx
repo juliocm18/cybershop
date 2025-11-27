@@ -294,7 +294,7 @@ const GestionTerritorios = () => {
           route="/adminhome"
           style={{ marginRight: 10 }}
         />
-        <Text style={globalStyles.pageTitle}>Asignación de Territorios a S.E.</Text>
+        <Text style={globalStyles.pageTitle}>Asignar Territorios a S.E.</Text>
       </View>
       <Select
         label="Filtrar por Categoría"
