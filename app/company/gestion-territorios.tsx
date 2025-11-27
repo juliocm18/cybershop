@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import {
   View,
   Text,
@@ -32,6 +32,7 @@ import { getCategoriesOrderByName } from "../category/functions";
 import BackButton from "../components/BackButton";
 import RoleFunctions from "../role/functions";
 const GestionTerritorios = () => {
+  const isMountedRef = useRef(true);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [modalTerritoryVisible, setModalTerritoryVisible] = useState(false);
   const [continent, setContinent] = useState("");
@@ -99,11 +100,22 @@ const GestionTerritorios = () => {
   }, [country]);
 
   useEffect(() => {
+    let isMounted = true;
     const initialize = async () => {
-      await loadCategories();
-      loadCompanies(true, selectedCategoyListItem);
+      try {
+        await loadCategories();
+        if (isMounted) {
+          loadCompanies(true, selectedCategoyListItem);
+        }
+      } catch (error) {
+        console.error("Error initializing:", error);
+      }
     };
     initialize();
+    return () => {
+      isMounted = false;
+      isMountedRef.current = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -113,17 +125,25 @@ const GestionTerritorios = () => {
   };
 
   const loadCompanies = useCallback(async (reset: boolean, categoryName?: string) => {
-    if (!categoryName && !selectedCategoyListItem) console.log("no hay categoria seleccionada");
-    if (loadingMore && !reset) return;
+    if (!categoryName && !selectedCategoyListItem) {
+      console.log("no hay categoria seleccionada");
+      return;
+    }
+    
+    if (!isMountedRef.current) return;
+    
     setLoadingMore(true);
     try {
-      const from = reset ? 0 : page * pageSize;
+      const currentPage = reset ? 0 : page;
+      const from = currentPage * pageSize;
       const to = from + pageSize - 1;
 
       const data = await getAllPagedByCategory(from, to, "name", categoryName || selectedCategoyListItem);
 
+      if (!isMountedRef.current) return;
+
       if (reset) {
-        if (data) setCompanies(data);
+        setCompanies(data || []);
         setPage(1);
       } else {
         setCompanies((prevCompanies) => [...prevCompanies, ...(data || [])]);
@@ -133,10 +153,15 @@ const GestionTerritorios = () => {
       setHasMore((data?.length || 0) === pageSize);
     } catch (error) {
       console.error("Error loading companies:", error);
+      if (isMountedRef.current) {
+        setCompanies([]);
+      }
     } finally {
-      setLoadingMore(false);
+      if (isMountedRef.current) {
+        setLoadingMore(false);
+      }
     }
-  }, [loadingMore, page, pageSize, selectedCategoyListItem]);
+  }, [page, pageSize, selectedCategoyListItem]);
   const loadMore = useCallback(() => {
     if (hasMore && !loadingMore) {
       loadCompanies(false, selectedCategoyListItem);
@@ -149,9 +174,9 @@ const GestionTerritorios = () => {
     setSelectedDepartments(company.departments || []);
     setEditingId(company.id || null);
     setCompanyName(company.name || "");
-  }, []);
+  }, [clearFields]);
 
-  const clearFields = () => {
+  const clearFields = useCallback(() => {
     setContinent("");
     setCountry("");
     setDepartments([]);
@@ -159,7 +184,7 @@ const GestionTerritorios = () => {
     setEditingId(null);
     setSelectedCountries([]);
     setSelectedDepartments([]);
-  };
+  }, []);
 
   const handleSaveTerritory = async () => {
     try {
@@ -255,7 +280,7 @@ const GestionTerritorios = () => {
     setSelectedCountries(company.countries || []);
     setEditingId(company.id || null);
     setCompanyName(company.name || "");
-  }, []);
+  }, [clearFields]);
 
   const handleChangeCategoryFilter = useCallback((categoryName: string) => {
     setSelectedCategoyListItem(categoryName);
@@ -274,8 +299,8 @@ const GestionTerritorios = () => {
       <Select
         label="Filtrar por Categoría"
         selectedValue={selectedCategoyListItem}
-        onValueChange={(itemValue) => handleChangeCategoryFilter(itemValue)}
-        items={categoryList.map((category) => ({ id: category.name || "", name: category.name || "" }))}
+        onValueChange={handleChangeCategoryFilter}
+        items={useMemo(() => categoryList.map((category) => ({ id: category.name || "", name: category.name || "" })), [categoryList])}
       />
       <FlatList
         style={{ height: "85%" }}
@@ -341,6 +366,10 @@ const GestionTerritorios = () => {
                       keyExtractor={(item, index) => `dept-${item}-${index}`}
                       showsVerticalScrollIndicator={true}
                       nestedScrollEnabled={true}
+                      maxToRenderPerBatch={5}
+                      windowSize={3}
+                      removeClippedSubviews={true}
+                      initialNumToRender={5}
                       renderItem={({ item }) => {
                         const isSelected = selectedDepartments.includes(item);
                         return (
@@ -457,6 +486,10 @@ const GestionTerritorios = () => {
                       keyExtractor={(item, index) => `country-${item.id}-${index}`}
                       showsVerticalScrollIndicator={true}
                       nestedScrollEnabled={true}
+                      maxToRenderPerBatch={5}
+                      windowSize={3}
+                      removeClippedSubviews={true}
+                      initialNumToRender={5}
                       renderItem={({ item }) => {
                         const isSelected = selectedCountries.includes(item.name);
                         return (

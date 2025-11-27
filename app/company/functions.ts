@@ -122,6 +122,11 @@ export const getAllPaged = async (from: number, to: number, order: string) => {
 };
 
 export const getAllPagedByCategory = async (from: number, to: number, order: string, categoryName: string) => {
+  // Validate categoryName
+  if (!categoryName || categoryName.trim() === '') {
+    return [];
+  }
+
   const {data, error} = await supabase
     .from("company")
     .select("*")
@@ -132,7 +137,7 @@ export const getAllPagedByCategory = async (from: number, to: number, order: str
     console.log(error);
     throw new Error(error.message)
   };
-  return data;
+  return data || [];
 };
 
 export const getAllPagedWithoutCategory = async (from: number, to: number, order: string) => {
@@ -188,6 +193,11 @@ export const getAllPagedWithoutCategory = async (from: number, to: number, order
 };
 
 export const getAllPagedByCategoryNoGlobal = async (from: number, to: number, order: string, categoryName: string) => {
+  // Validate categoryName
+  if (!categoryName || categoryName.trim() === '') {
+    return [];
+  }
+
   const {data, error} = await supabase
     .from("company")
     .select("*")
@@ -198,7 +208,7 @@ export const getAllPagedByCategoryNoGlobal = async (from: number, to: number, or
   if (error) { 
     console.log(error);
     throw new Error(error.message)};
-  return data;
+  return data || [];
 };
 
 export const fetchCompaniesByDepartments = async (
@@ -207,14 +217,19 @@ export const fetchCompaniesByDepartments = async (
   from: number,
   to: number
 ): Promise<Company[]> => {
+  // Validate departments array
+  if (!departments || departments.length === 0) {
+    return [];
+  }
+
   const {data, error} = await supabase
     .from("company")
     .select("*")
-    .filter("departments", "overlaps", departments)
+    .overlaps("departments", departments)
     .range(from, to)
     .order(order, {ascending: true});
   if (error) throw new Error(error.message);
-  return data;
+  return data || [];
 };
 
 
