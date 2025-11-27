@@ -39,6 +39,10 @@ export default function UserProfile() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const handleBack = () => {
+    router.push('/media-naranja/Home');
+  };
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!session?.user?.id) {
@@ -77,7 +81,7 @@ export default function UserProfile() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <AppHeader userEmail={session?.user?.email || ''} showBackButton={true} />
+        <AppHeader userEmail={session?.user?.email || ''} showBackButton={true} onBack={handleBack} />
         <Text style={styles.loadingText}>Cargando perfil...</Text>
       </View>
     );
@@ -86,9 +90,9 @@ export default function UserProfile() {
   if (!userProfile) {
     return (
       <View style={styles.loadingContainer}>
-        <AppHeader userEmail={session?.user?.email || ''} showBackButton={true} />
+        <AppHeader userEmail={session?.user?.email || ''} showBackButton={true} onBack={handleBack} />
         <Text style={styles.errorText}>No se pudo cargar el perfil</Text>
-        <TouchableOpacity style={styles.button} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.button} onPress={handleBack}>
           <Text style={styles.buttonText}>Volver</Text>
         </TouchableOpacity>
       </View>
@@ -97,7 +101,7 @@ export default function UserProfile() {
 
   return (
     <View style={styles.container}>
-      <AppHeader userEmail={session?.user?.email || ''} showBackButton={true} />
+      <AppHeader userEmail={session?.user?.email || ''} showBackButton={true} onBack={handleBack} />
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.profileHeader}>
