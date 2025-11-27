@@ -119,6 +119,7 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 15,
     color: "#fb8436",
+    textAlign: "center",
   },
   title: {
     fontSize: 20,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -29,6 +29,7 @@ import { globalStyles } from "../styles";
 import { Category } from "../category/types";
 import { getCategoriesOrderByName } from "../category/functions";
 import BackButton from "../components/BackButton";
+import RoleFunctions from "../role/functions";
 const GestionTerritorios = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [modalTerritoryVisible, setModalTerritoryVisible] = useState(false);
@@ -58,48 +59,51 @@ const GestionTerritorios = () => {
   const [categoryList, setCategoryList] = useState<Category[]>([]);
   const [selectedCategoyListItem, setSelectedCategoyListItem] = useState<string>("INTELIGENCIAS ARTIFICIALES");
 
-  const toggleSelection = (department: string) => {
+  const toggleSelection = useCallback((department: string) => {
     setSelectedDepartments(
       (prevSelected) =>
         prevSelected.includes(department)
           ? prevSelected.filter((dep) => dep !== department) // Quita si está seleccionado
           : [...prevSelected, department] // Agrega si no está seleccionado
     );
-  };
+  }, []);
 
-  const toggleCountrySelection = (countryName: string) => {
+  const toggleCountrySelection = useCallback((countryName: string) => {
     setSelectedCountries(
       (prevSelected) =>
         prevSelected.includes(countryName)
           ? prevSelected.filter((country) => country !== countryName) // Quita si está seleccionado
           : [...prevSelected, countryName] // Agrega si no está seleccionado
     );
-  };
+  }, []);
 
   useEffect(() => {
     if (continent) {
-      setCountries(
-        (countriesData as Record<string, { id: string; name: string }[]>)[
-        continent
-        ] || []
-      );
+      const newCountries = (countriesData as Record<string, { id: string; name: string }[]>)[continent] || [];
+      setCountries(newCountries);
       setCountry("");
       setDepartments([]);
+    } else {
+      setCountries([]);
     }
   }, [continent]);
 
   useEffect(() => {
     if (country) {
-      setDepartments(
-        (departmentsData as Record<string, string[]>)[country] || []
-      );
+      const newDepartments = (departmentsData as Record<string, string[]>)[country] || [];
+      setDepartments(newDepartments);
+    } else {
+      setDepartments([]);
     }
   }, [country]);
 
   useEffect(() => {
-    loadCategories();
-    loadCompanies(true, selectedCategoyListItem);
-
+    const initialize = async () => {
+      await loadCategories();
+      loadCompanies(true, selectedCategoyListItem);
+    };
+    initialize();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadCategories = async () => {
@@ -107,43 +111,44 @@ const GestionTerritorios = () => {
     if (categories) setCategoryList(categories);
   };
 
-  const loadCompanies = async (reset: boolean, categoryName?: string) => {
+  const loadCompanies = useCallback(async (reset: boolean, categoryName?: string) => {
     if (!categoryName && !selectedCategoyListItem) console.log("no hay categoria seleccionada");
-    if (loadingMore) return;
+    if (loadingMore && !reset) return;
     setLoadingMore(true);
-    const from = reset ? 0 : page * pageSize;
-    const to = from + pageSize - 1;
+    try {
+      const from = reset ? 0 : page * pageSize;
+      const to = from + pageSize - 1;
 
-    // const userDepartments = await UserFunctions.getDepartmentsByUser(
-    //   session?.user?.id || ""
-    // );
-    //console.log("Loading companies from", from, "to", to);
-    const data = await getAllPagedByCategoryNoGlobal(from, to, "name", categoryName || selectedCategoyListItem);
+      const data = await getAllPagedByCategoryNoGlobal(from, to, "name", categoryName || selectedCategoyListItem);
 
-    if (reset) {
-      if (data) setCompanies(data);
-      setPage(1);
-    } else {
-      setCompanies((prevCompanies) => [...prevCompanies, ...(data || [])]);
-      setPage((prevPage) => prevPage + 1);
+      if (reset) {
+        if (data) setCompanies(data);
+        setPage(1);
+      } else {
+        setCompanies((prevCompanies) => [...prevCompanies, ...(data || [])]);
+        setPage((prevPage) => prevPage + 1);
+      }
+
+      setHasMore((data?.length || 0) === pageSize);
+    } catch (error) {
+      console.error("Error loading companies:", error);
+    } finally {
+      setLoadingMore(false);
     }
-
-    setHasMore((data?.length || 0) === pageSize); // Si no hay más datos, detenemos la carga
-    setLoadingMore(false);
-  };
-  const loadMore = () => {
-    if (hasMore) {
+  }, [loadingMore, page, pageSize, selectedCategoyListItem]);
+  const loadMore = useCallback(() => {
+    if (hasMore && !loadingMore) {
       loadCompanies(false, selectedCategoyListItem);
     }
-  };
+  }, [hasMore, loadingMore, loadCompanies, selectedCategoyListItem]);
 
-  const handleTerritory = async (company: Company) => {
+  const handleTerritory = useCallback(async (company: Company) => {
     clearFields();
     setModalTerritoryVisible(true);
     setSelectedDepartments(company.departments || []);
     setEditingId(company.id || null);
     setCompanyName(company.name || "");
-  };
+  }, []);
 
   const clearFields = () => {
     setContinent("");
@@ -183,14 +188,18 @@ const GestionTerritorios = () => {
 
         let hasPermission = true;
 
+        const userRoles = await RoleFunctions.getByUser(session.user.id);
 
-        for (const dep of companyObj.departments) {
-          if (!userDepartments.includes(dep)) {
-            hasPermission = false;
-            break;
+        if (
+          userRoles?.some((role) => role.name !== "CEO")
+        ) {
+          for (const dep of companyObj.departments) {
+            if (!userDepartments.includes(dep)) {
+              hasPermission = false;
+              break;
+            }
           }
         }
-
 
         if (!hasPermission) {
           Alert.alert("Error", "El territorio que desea asignar no le corresponde");
@@ -239,24 +248,24 @@ const GestionTerritorios = () => {
     }
   };
 
-  const handleTerritoryCountry = async (company: Company) => {
+  const handleTerritoryCountry = useCallback(async (company: Company) => {
     clearFields();
     setModalCountryVisible(true);
     setSelectedCountries(company.countries || []);
     setEditingId(company.id || null);
     setCompanyName(company.name || "");
-  };
+  }, []);
 
-  const handleChangeCategoryFilter = (categoryName: string) => {
+  const handleChangeCategoryFilter = useCallback((categoryName: string) => {
     setSelectedCategoyListItem(categoryName);
-    loadCompanies(true, categoryName); // Pass categoryName directly instead of using state
-  };
+    loadCompanies(true, categoryName);
+  }, [loadCompanies]);
 
   return (
     <View style={styles.container}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginBottom: 10 }}>
-        <BackButton 
-          route="/adminhome" 
+        <BackButton
+          route="/adminhome"
           style={{ marginRight: 10 }}
         />
         <Text style={globalStyles.pageTitle}>Asignación de Territorios a S.E.</Text>
@@ -270,7 +279,7 @@ const GestionTerritorios = () => {
       <FlatList
         style={{ height: "85%" }}
         data={companies}
-        keyExtractor={(item, index) => (index).toString()}
+        keyExtractor={(item, index) => item.id?.toString() || `company-${index}`}
         renderItem={({ item }) => (
           <TerritoryCompanyItem item={item} onOpenTerritory={handleTerritory} onOpenCountry={handleTerritoryCountry} />
         )}
@@ -282,8 +291,11 @@ const GestionTerritorios = () => {
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
         ListFooterComponent={loadingMore ? <ActivityIndicator size="large" /> : null}
-        removeClippedSubviews={true} // Elimina elementos fuera de pantalla
+        removeClippedSubviews={true}
         windowSize={5}
+        maxToRenderPerBatch={10}
+        updateCellsBatchingPeriod={50}
+        initialNumToRender={10}
       />
 
       <Modal visible={modalTerritoryVisible} animationType="slide" transparent={true}>
@@ -325,8 +337,9 @@ const GestionTerritorios = () => {
                   ) : (
                     <FlatList
                       data={departments}
-                      keyExtractor={(item) => item}
-                      showsHorizontalScrollIndicator={true}
+                      keyExtractor={(item, index) => `dept-${item}-${index}`}
+                      showsVerticalScrollIndicator={true}
+                      nestedScrollEnabled={true}
                       renderItem={({ item }) => {
                         const isSelected = selectedDepartments.includes(item);
                         return (
@@ -440,8 +453,9 @@ const GestionTerritorios = () => {
                   ) : (
                     <FlatList
                       data={countries}
-                      keyExtractor={(item) => item.id}
-                      showsHorizontalScrollIndicator={true}
+                      keyExtractor={(item, index) => `country-${item.id}-${index}`}
+                      showsVerticalScrollIndicator={true}
+                      nestedScrollEnabled={true}
                       renderItem={({ item }) => {
                         const isSelected = selectedCountries.includes(item.name);
                         return (

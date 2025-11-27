@@ -2,6 +2,7 @@ import React from "react";
 import {View, Text, TouchableOpacity, Image, StyleSheet} from "react-native";
 import RNModal from "react-native-modal";
 import {CompanyLink} from "./company/company.interface";
+import {Ionicons} from "@expo/vector-icons";
 
 interface SocialLinksModalProps {
   visible: boolean;
@@ -24,6 +25,9 @@ const SocialLinksModal: React.FC<SocialLinksModalProps> = ({
   return (
     <RNModal isVisible={visible} onBackdropPress={onClose}>
       <View style={styles.modalContent}>
+        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+          <Ionicons name="close" size={24} color="#333" />
+        </TouchableOpacity>
         <Text style={styles.title}>{company?.name || ""}</Text>
         <View style={styles.linksContainer}>
           {companyLinks.map((companyLink: CompanyLink) => (
@@ -50,6 +54,14 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     alignItems: "center",
+    position: "relative",
+  },
+  closeButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 1,
+    padding: 5,
   },
   title: {
     fontSize: 18,

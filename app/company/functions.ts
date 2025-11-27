@@ -147,7 +147,7 @@ export const getAllPagedWithoutCategory = async (from: number, to: number, order
   }
   
   const validCategoryNames = validCategories?.map(cat => cat.name) || [];
-  console.log("Categorías válidas:", validCategoryNames);
+  //console.log("Categorías válidas:", validCategoryNames);
   
   // Obtener todas las compañías
   const {data: allCompanies, error} = await supabase

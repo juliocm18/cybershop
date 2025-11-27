@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { View, StyleSheet, Platform, Modal, TouchableOpacity, FlatList, Text } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 
@@ -9,7 +9,7 @@ interface SelectProps {
   items: { id?: string | number; name: string }[];
 }
 
-const Select: React.FC<SelectProps> = ({
+const Select: React.FC<SelectProps> = React.memo(({
   label,
   selectedValue,
   onValueChange,
@@ -17,13 +17,37 @@ const Select: React.FC<SelectProps> = ({
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
+  const handleOpenModal = useCallback(() => {
+    setModalVisible(true);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setModalVisible(false);
+  }, []);
+
+  const handleSelectItem = useCallback((itemId: string | number) => {
+    if (itemId !== '' && itemId !== undefined) {
+      onValueChange(itemId);
+    }
+    setModalVisible(false);
+  }, [onValueChange]);
+
+  const selectedItem = useMemo(() => 
+    items.find(item => item.id === selectedValue),
+    [items, selectedValue]
+  );
+
+  const modalData = useMemo(() => 
+    [{ id: '', name: `-- SELECCIONA ${label.toUpperCase()} --` }, ...items],
+    [items, label]
+  );
+
   if (Platform.OS === 'ios') {
-    const selectedItem = items.find(item => item.id === selectedValue);
     return (
       <View style={styles.container}>
         <TouchableOpacity
           style={styles.iosButton}
-          onPress={() => setModalVisible(true)}
+          onPress={handleOpenModal}
         >
           <Text style={selectedValue ? styles.iosButtonText : styles.iosButtonPlaceholder}>
             {selectedItem ? selectedItem.name : `-- SELECCIONA ${label.toUpperCase()} --`}
@@ -33,28 +57,26 @@ const Select: React.FC<SelectProps> = ({
           visible={modalVisible}
           animationType="slide"
           transparent={true}
-          onRequestClose={() => setModalVisible(false)}
+          onRequestClose={handleCloseModal}
         >
-          <TouchableOpacity style={styles.modalOverlay} onPress={() => setModalVisible(false)}>
+          <TouchableOpacity style={styles.modalOverlay} onPress={handleCloseModal} activeOpacity={1}>
             <View style={styles.modalContent}>
               <FlatList
-                data={[{ id: '', name: `-- SELECCIONA ${label.toUpperCase()} --` }, ...items]}
-                keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+                data={modalData}
+                keyExtractor={(item, index) => `select-${item.id?.toString() || index}`}
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={styles.modalItem}
-                    onPress={() => {
-                      if (item.id !== '' && item.id !== undefined) {
-                        onValueChange(item.id);
-                      }
-                      setModalVisible(false);
-                    }}
+                    onPress={() => handleSelectItem(item.id || '')}
                   >
                     <Text style={selectedValue === item.id ? styles.selectedItem : undefined}>
                       {item.name}
                     </Text>
                   </TouchableOpacity>
                 )}
+                maxToRenderPerBatch={10}
+                windowSize={5}
+                removeClippedSubviews={true}
               />
             </View>
           </TouchableOpacity>
@@ -67,7 +89,7 @@ const Select: React.FC<SelectProps> = ({
   return (
     <View style={styles.container}>
       <Picker
-        selectedValue={selectedValue}
+        selectedValue={selectedValue ?? undefined}
         onValueChange={onValueChange}
         style={styles.picker}
       >
@@ -85,7 +107,7 @@ const Select: React.FC<SelectProps> = ({
       </Picker>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -143,4 +165,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Select;
+export default React.memo(Select);

@@ -371,6 +371,7 @@ const CompanyScreen = () => {
   };
 
   const handleLinks = async (company: Company) => {
+    setName(company.name);
     setModalLinkVisible(true);
     setEditingLinkId(null);
     setLink(undefined);
@@ -613,7 +614,7 @@ const CompanyScreen = () => {
             >
               <>
                 <Text style={styles.socialModalFooterTitle}>
-                  Agregar Contacto:
+                  {name}
                 </Text>
                 <Select
                   label="Tipo de Contacto"
