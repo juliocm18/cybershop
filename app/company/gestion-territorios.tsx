@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import {
   getAllPaged,
+  getAllPagedByCategory,
   getAllPagedByCategoryNoGlobal,
   updateCompany,
 } from "./functions";
@@ -119,7 +120,7 @@ const GestionTerritorios = () => {
       const from = reset ? 0 : page * pageSize;
       const to = from + pageSize - 1;
 
-      const data = await getAllPagedByCategoryNoGlobal(from, to, "name", categoryName || selectedCategoyListItem);
+      const data = await getAllPagedByCategory(from, to, "name", categoryName || selectedCategoyListItem);
 
       if (reset) {
         if (data) setCompanies(data);

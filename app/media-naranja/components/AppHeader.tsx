@@ -45,8 +45,8 @@ const { signOut } = useAuth();
       <View style={styles.leftSection}>
         {showBackButton && (
           <BackButton 
-            route="/main-menu"
-            onPress={onBack ? onBack : undefined}
+            route={onBack ? "/media-naranja/Home" : "/main-menu"}
+            onPress={onBack}
             style={{ marginRight: 12 }}
           />
         )}

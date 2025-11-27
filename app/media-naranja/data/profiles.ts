@@ -7,6 +7,7 @@ export async function getProfilesFromSupabase(
   sexualPreference?: string,
   userGender?: string
 ): Promise<clientProfile[]> {
+  console.log("userId",userId, "sexualPreference", sexualPreference, "userGender", userGender);
   // Step 1: Get liked and noped user IDs
   let excludeIds: string[] = [];
   if (userId) {
@@ -21,23 +22,34 @@ export async function getProfilesFromSupabase(
     const nopedIds = nopesRes.data ? nopesRes.data.map((row: any) => row.noped_user_id) : [];
     excludeIds = [...excludeIds, ...likedIds, ...nopedIds];
   }
-
   // Step 2: Query profiles, excluding those IDs (including the current user)
   let query = supabase
     .from('profiles')
     .select('*')
     .eq('accept_media_naranja', true);
   
-  // Filter by gender and sexual preference
-  if (sexualPreference && sexualPreference !== 'ambos') {
-    // Show profiles whose gender matches the user's sexual preference
-    query = query.eq('gender', sexualPreference);
-  }
-  
-  if (userGender) {
-    // Show profiles whose sexual preference matches the user's gender
-    // or profiles that accept 'ambos' (both genders)
-    query = query.or(`sexual_preference.eq.${userGender},sexual_preference.eq.ambos`);
+  // Filter by gender based on sexual preference
+  if (sexualPreference && userGender) {
+    if (sexualPreference === 'heterosexual') {
+      // Heterosexual: show opposite gender
+      const oppositeGender = userGender === 'masculino' ? 'femenino' : 'masculino';
+      query = query.eq('gender', oppositeGender);
+      // Show profiles that are heterosexual or prefer both genders
+      query = query.or(`sexual_preference.eq.heterosexual,sexual_preference.eq.ambos`);
+    } else if (sexualPreference === 'homosexual') {
+      // Homosexual: show same gender
+      query = query.eq('gender', userGender);
+      // Show profiles that are homosexual or prefer both genders
+      query = query.or(`sexual_preference.eq.homosexual,sexual_preference.eq.ambos`);
+    } else if (sexualPreference === 'ambos') {
+      // Bisexual: show all genders
+      // Show profiles that could be interested (heterosexual of opposite gender, homosexual of same gender, or ambos)
+      if (userGender === 'masculino') {
+        query = query.or(`and(gender.eq.femenino,sexual_preference.eq.heterosexual),and(gender.eq.masculino,sexual_preference.eq.homosexual),sexual_preference.eq.ambos`);
+      } else {
+        query = query.or(`and(gender.eq.masculino,sexual_preference.eq.heterosexual),and(gender.eq.femenino,sexual_preference.eq.homosexual),sexual_preference.eq.ambos`);
+      }
+    }
   }
   
   if (excludeIds.length > 0) {
