@@ -7,7 +7,11 @@ import './i18n/i18n';
 import LanguageSelector from './components/LanguageSelector';
 import { useTranslation } from "react-i18next";
 import * as WebBrowser from 'expo-web-browser';
+import { initializeCrashlytics } from './config/firebase';
+import ErrorBoundary from './components/ErrorBoundary';
 
+// Initialize Crashlytics
+initializeCrashlytics();
 
 const videoSource = require('../assets/video/splash.mp4');
 
@@ -70,9 +74,11 @@ function MainLayout() {
 
 export default function Layout() {
   return (
-    <AuthProvider>
-      <MainLayout />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <MainLayout />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

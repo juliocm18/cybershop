@@ -45,7 +45,9 @@
       "expo-router",
       "expo-video",
       "expo-localization",
-      "expo-web-browser"
+      "expo-web-browser",
+      "@react-native-firebase/app",
+      "@react-native-firebase/crashlytics"
     ],
     "experiments": {
       "typedRoutes": true

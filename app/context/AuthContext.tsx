@@ -2,6 +2,7 @@ import {createContext, useContext, useEffect, useState} from "react";
 import {supabase} from "../supabase";
 import {Session} from "@supabase/supabase-js";
 import {User} from "../user/model";
+import { setCrashlyticsUserId, setCrashlyticsAttribute, logError } from '../config/firebase';
 
 type AuthContextType = {
   session: Session | null;
@@ -21,8 +22,18 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
   useEffect(() => {
     const fetchSession = async () => {
       const {data, error} = await supabase.auth.getSession();
-      if (error) console.error(error);
+      if (error) {
+        console.error(error);
+        logError(error, 'fetchSession');
+      }
       setSession(data.session);
+      
+      // Set user ID in Crashlytics if session exists
+      if (data.session?.user) {
+        setCrashlyticsUserId(data.session.user.id);
+        setCrashlyticsAttribute('user_email', data.session.user.email || 'unknown');
+      }
+      
       setLoading(false);
     };
 
@@ -31,6 +42,16 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     const {data: authListener} = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
+        
+        // Update Crashlytics user info on auth state change
+        if (session?.user) {
+          setCrashlyticsUserId(session.user.id);
+          setCrashlyticsAttribute('user_email', session.user.email || 'unknown');
+        } else {
+          // Clear user info on sign out
+          setCrashlyticsUserId('anonymous');
+          setCrashlyticsAttribute('user_email', 'none');
+        }
       }
     );
 
@@ -38,25 +59,42 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
   }, []);
 
   const signIn = async (email: string, password: string): Promise<User> => {
-    const {data, error} = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) throw error;
+    try {
+      const {data, error} = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
 
-    return {
-      id: data.user.id,
-      email: data.user.email || "noemail@mail.com",
-      email_confirmed_at: data.user.email_confirmed_at,
-      last_sign_in_at: data.user.last_sign_in_at,
-      phone: data.user.phone,
-      //role: data.user.role,
-    };
+      // Set user info in Crashlytics
+      setCrashlyticsUserId(data.user.id);
+      setCrashlyticsAttribute('user_email', data.user.email || 'unknown');
+      setCrashlyticsAttribute('last_sign_in', new Date().toISOString());
+
+      return {
+        id: data.user.id,
+        email: data.user.email || "noemail@mail.com",
+        email_confirmed_at: data.user.email_confirmed_at,
+        last_sign_in_at: data.user.last_sign_in_at,
+        phone: data.user.phone,
+        //role: data.user.role,
+      };
+    } catch (error: any) {
+      logError(error, 'signIn');
+      throw error;
+    }
   };
 
   const signUp = async (email: string, password: string) => {
-    const {error} = await supabase.auth.signUp({email, password});
-    if (error) throw error;
+    try {
+      const {error} = await supabase.auth.signUp({email, password});
+      if (error) throw error;
+      
+      setCrashlyticsAttribute('last_action', 'signUp');
+    } catch (error: any) {
+      logError(error, 'signUp');
+      throw error;
+    }
   };
 
   const signOut = async () => {
@@ -73,13 +111,19 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
         // If the error is that session is already missing, that's fine
         if (error.message !== 'Auth session missing!') {
           console.error('Error during sign out:', error);
+          logError(error, 'signOut');
         }
       }
+      
+      // Clear Crashlytics user info
+      setCrashlyticsUserId('anonymous');
+      setCrashlyticsAttribute('user_email', 'none');
       
       // Always set session to null, regardless of errors
       setSession(null);
     } catch (error: any) {
       console.error('Error in signOut:', error);
+      logError(error, 'signOut');
       // Even if there's an error, clear the local session
       setSession(null);
       // Don't throw the error if it's just a missing session
@@ -90,10 +134,17 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
   };
 
   const resetPassword = async (email: string) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'https://burbitstudio.com/reset-password-mall-cybershop',
-    });
-    if (error) throw error;
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: 'https://burbitstudio.com/reset-password-mall-cybershop',
+      });
+      if (error) throw error;
+      
+      setCrashlyticsAttribute('last_action', 'resetPassword');
+    } catch (error: any) {
+      logError(error, 'resetPassword');
+      throw error;
+    }
   };
 
   return (
