@@ -11,6 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from "react-i18next";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { globalStyles } from "./styles";
+import CrashTestButton from "./components/CrashTestButton";
 
 const LocationHome = () => {
   const router = useRouter();
@@ -161,6 +162,8 @@ const LocationHome = () => {
       >
         {t('common.enterButton')}
       </Button> */}
+
+      {/* <CrashTestButton /> */}
 
 
     </View>

@@ -24,7 +24,7 @@
     "android": {
       "package": "com.burbitstudio.mallcybershop",
       "versionCode": 1,
-      "googleServicesFile": "./android/app/google-services.json",
+      "googleServicesFile": "./google-services.json",
       "permissions": [
         "CAMERA",
         "MEDIA_LIBRARY",

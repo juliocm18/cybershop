@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "118325917728",
+    "project_id": "mallcybershop-62a85",
+    "storage_bucket": "mallcybershop-62a85.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:118325917728:android:333f31f206cd7174282445",
+        "android_client_info": {
+          "package_name": "com.burbitstudio.mallcybershop"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuArHq3EFsQyjSAZ8Rg3KHE9F-z3nq6Lk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
