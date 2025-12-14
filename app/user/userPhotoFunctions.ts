@@ -2,57 +2,10 @@ import * as ImagePicker from "expo-image-picker";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import { Alert } from "react-native";
 import { supabase } from "../supabase";
+import { safePickMultipleImages } from "../utils/safeImagePicker";
 
-// Function to pick multiple images from gallery
 export const pickMultipleImages = async (maxImages: number = 5): Promise<string[]> => {
-  try {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: false,
-      aspect: [4, 3],
-      quality: 1,
-      selectionLimit: maxImages,
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: true,
-    });
-
-    if (result.canceled || result.assets.length === 0) {
-      return [];
-    }
-
-    // Process each selected image
-    const processedUris: string[] = [];
-    
-    for (const image of result.assets) {
-      // Validate image type
-      if (!["image/jpeg", "image/png", "image/jpg"].includes(image.mimeType || "")) {
-        console.warn("Skipping non-JPG/PNG image");
-        continue;
-      }
-
-      // Resize large images
-      if (image.width > 1000 || image.height > 1000) {
-        try {
-          const manipResult = await manipulateAsync(
-            image.uri,
-            [{ resize: { width: 1000, height: 1000 } }],
-            { compress: 0.7, format: SaveFormat.JPEG }
-          );
-          processedUris.push(manipResult.uri);
-        } catch (error) {
-          console.error("Error compressing image:", error);
-          continue;
-        }
-      } else {
-        processedUris.push(image.uri);
-      }
-    }
-
-    return processedUris;
-  } catch (error) {
-    console.error("Error picking images:", error);
-    Alert.alert("Error", "No se pudieron cargar las imágenes");
-    return [];
-  }
+  return await safePickMultipleImages(maxImages);
 };
 
 // Convert URI to FormData for upload

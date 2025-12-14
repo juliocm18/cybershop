@@ -1,6 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import crashlytics from '@react-native-firebase/crashlytics';
+import { crashLogger } from '../../utils/crashlytics';
 
 interface Props {
   children: ReactNode;
@@ -29,12 +29,11 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log error to Crashlytics
-    crashlytics().recordError(error);
-    crashlytics().log('Error boundary caught an error');
-    crashlytics().setAttribute('error_boundary', 'true');
-    crashlytics().setAttribute('component_stack', errorInfo.componentStack || 'N/A');
+    crashLogger.logError(error, 'ErrorBoundary');
+    crashLogger.setBreadcrumb('Error boundary caught an error', 'ErrorBoundary');
     
     console.error('ErrorBoundary caught an error:', error, errorInfo);
+    console.error('Component stack:', errorInfo.componentStack);
   }
 
   handleReset = () => {

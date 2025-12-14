@@ -21,6 +21,8 @@ import { Audio } from 'expo-av';
 import { supabase } from '../../supabase';
 import { MediaInfo, LocationInfo, MessageType } from '../types';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import { useMediaSafety } from '../../../hooks/useMediaSafety';
+import { crashLogger } from '../../../utils/crashlytics';
 
 interface ChatInputProps {
   onSendMessage: (message: string, messageType: MessageType, mediaInfo?: MediaInfo, locationInfo?: LocationInfo) => Promise<void>;
@@ -42,6 +44,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled, r
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  
+  const { safeImagePicker, safeImageManipulator, safeVideoOperation, safeDocumentPicker, isProcessing } = useMediaSafety();
 
   useEffect(() => {
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
@@ -117,75 +121,88 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled, r
   };
 
   const pickImage = async (): Promise<void> => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      quality: 1,
-      selectionLimit: 1, // Solo permite una imagen
-      mediaTypes: ["images"], // Solo imágenes
-    });
-
-    if (result.canceled || result.assets.length === 0) {
-      return;
-    }
-    const image = result.assets[0];
-
-    if (image.width > 1000) {
-      try {
-        const aspectRatio = image.height / image.width;
-        const newWidth = 1000;
-        const newHeight = Math.round(newWidth * aspectRatio);
-
-        const manipResult = await manipulateAsync(
-          image.uri,
-          [{ resize: { width: newWidth, height: newHeight } }],
-          { compress: 0.7, format: SaveFormat.PNG }
-        );
-
-        await uploadAndSendMedia(manipResult.uri, 'image', image.fileName || 'image.png');
-        return;
-      } catch (error) {
-        throw new Error("No se pudo comprimir la imagen");
-      }
-    }
-
-    // Validar tipo de imagen
-    if (!["image/png"].includes(image.mimeType || "")) {
-      throw new Error("Solo son permitidos PNG.");
-    }
-
-    await uploadAndSendMedia(image.uri, 'image', image.fileName || 'image.jpg');
-  };
-
-  // Document handling (PDF)
-  const pickDocument = async () => {
     try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: 'application/pdf',
-        copyToCacheDirectory: true,
+      const result = await safeImagePicker(async () => {
+        return await ImagePicker.launchImageLibraryAsync({
+          allowsEditing: true,
+          quality: 0.8,
+          selectionLimit: 1,
+          mediaTypes: ["images"],
+        });
       });
 
-      if (result.canceled === false && result.assets && result.assets.length > 0) {
+      if (!result || result.canceled || result.assets.length === 0) {
+        return;
+      }
+      const image = result.assets[0];
+
+      if (image.width > 1000) {
+        try {
+          const aspectRatio = image.height / image.width;
+          const newWidth = 1000;
+          const newHeight = Math.round(newWidth * aspectRatio);
+
+          const manipResult = await safeImageManipulator(async () => {
+            return await manipulateAsync(
+              image.uri,
+              [{ resize: { width: newWidth, height: newHeight } }],
+              { compress: 0.7, format: SaveFormat.PNG }
+            );
+          });
+
+          if (manipResult) {
+            await uploadAndSendMedia(manipResult.uri, 'image', image.fileName || 'image.png');
+          }
+          return;
+        } catch (error) {
+          await crashLogger.logError(error as Error, 'ChatImageResize');
+          Alert.alert('Error', 'No se pudo comprimir la imagen');
+          return;
+        }
+      }
+
+      if (!["image/png"].includes(image.mimeType || "")) {
+        Alert.alert('Error', 'Solo son permitidos PNG.');
+        return;
+      }
+
+      await uploadAndSendMedia(image.uri, 'image', image.fileName || 'image.jpg');
+    } catch (error) {
+      await crashLogger.logError(error as Error, 'ChatImagePicker');
+      Alert.alert('Error', 'No se pudo seleccionar la imagen');
+    } finally {
+      setShowMediaOptions(false);
+    }
+  };
+
+  const pickDocument = async () => {
+    try {
+      const result = await safeDocumentPicker(async () => {
+        return await DocumentPicker.getDocumentAsync({
+          type: 'application/pdf',
+          copyToCacheDirectory: true,
+        });
+      });
+
+      if (result && result.canceled === false && result.assets && result.assets.length > 0) {
         const selectedDoc = result.assets[0];
         const fileInfo = await FileSystem.getInfoAsync(selectedDoc.uri);
 
-        // Check file size (10MB limit)
         if (fileInfo.size && fileInfo.size > 10 * 1024 * 1024) {
           Alert.alert('File too large', 'Please select a PDF smaller than 10MB');
           return;
         }
 
-        // Upload to Supabase storage
         await uploadAndSendMedia(selectedDoc.uri, 'pdf', selectedDoc.name);
       }
     } catch (error) {
-      console.error('Error picking document:', error);
+      await crashLogger.logError(error as Error, 'ChatDocumentPicker');
       Alert.alert('Error', 'Failed to select document');
     }
 
     setShowMediaOptions(false);
   };
 
-  // Video handling
   const pickVideo = async () => {
     try {
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -194,28 +211,28 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled, r
         return;
       }
 
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-        allowsEditing: true,
-        quality: 0.8,
-        videoMaxDuration: 300, // 5 minutes max
+      const result = await safeVideoOperation(async () => {
+        return await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+          allowsEditing: true,
+          quality: 0.7,
+          videoMaxDuration: 300,
+        });
       });
 
-      if (!result.canceled && result.assets && result.assets.length > 0) {
+      if (result && !result.canceled && result.assets && result.assets.length > 0) {
         const selectedVideo = result.assets[0];
         const fileInfo = await FileSystem.getInfoAsync(selectedVideo.uri);
 
-        // Check file size (10MB limit)
         if (fileInfo.size && fileInfo.size > 15 * 1024 * 1024) {
-          Alert.alert('File too large', 'Please select a video smaller than 10MB');
+          Alert.alert('File too large', 'Please select a video smaller than 15MB');
           return;
         }
 
-        // Upload to Supabase storage
         await uploadAndSendMedia(selectedVideo.uri, 'video', selectedVideo.fileName || 'video.mp4');
       }
     } catch (error) {
-      console.error('Error picking video:', error);
+      await crashLogger.logError(error as Error, 'ChatVideoPicker');
       Alert.alert('Error', 'Failed to select video');
     }
 

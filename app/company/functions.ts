@@ -3,52 +3,10 @@ import {supabase, SUPABASE_URL} from "../supabase";
 import * as ImagePicker from "expo-image-picker";
 import {manipulateAsync, SaveFormat} from "expo-image-manipulator";
 import {Company, CompanyLink} from "./company.interface";
+import { safePickImage } from "../utils/safeImagePicker";
 
 export const pickImage = async (): Promise<string | null> => {
-  const result = await ImagePicker.launchImageLibraryAsync({
-    allowsEditing: true,
-    aspect: [10, 10], // Ajustado para mantener la proporción 10:1
-    quality: 1,
-    selectionLimit: 1, // Solo permite una imagen
-    mediaTypes: ["images"], // Solo imágenes
-  });
-
-  if (result.canceled || result.assets.length === 0) {
-    return null;
-  }
-
-  const image = result.assets[0];
-
-  // console.log("🖼️ Imagen seleccionada:", image.width, image.height);
-  // Validar dimensiones de la imagen
-  if (image.width >= 1000) {
-    try {
-      const manipResult = await manipulateAsync(
-        image.uri,
-        [{resize: {width: 1000, height: 1000}}],
-        {compress: 0.7, format: SaveFormat.JPEG}
-      );
-      // console.log(
-      //   "🖼️ Imagen comprimida:",
-      //   manipResult.width,
-      //   manipResult.height
-      // );
-      return manipResult.uri;
-    } catch (error) {
-      console.error("Error comprimiendo imagen:", error);
-      Alert.alert("Error", "No se pudo comprimir la imagen");
-      return null;
-    }
-  }
-
-  // 🔍 Validar tipo de imagen
-  if (!["image/jpeg", "image/png"].includes(image.mimeType || "")) {
-    Alert.alert("Error", "Solo son permitidos JPG, JPEG, y PNG.");
-    return null;
-  }
-
-  console.log("🖼️ Imagen seleccionada:", image.uri);
-  return image.uri; // Retornar la URI para la subida
+  return await safePickImage();
 };
 
 const uriToFormData = async (uri: string): Promise<FormData> => {

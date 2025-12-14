@@ -9,9 +9,11 @@ import { useTranslation } from "react-i18next";
 import * as WebBrowser from 'expo-web-browser';
 import { initializeCrashlytics } from './config/firebase';
 import ErrorBoundary from './components/ErrorBoundary';
+import { setupGlobalErrorHandlers, crashLogger } from '../utils/crashlytics';
 
 // Initialize Crashlytics
 initializeCrashlytics();
+setupGlobalErrorHandlers();
 
 const videoSource = require('../assets/video/splash.mp4');
 
@@ -32,6 +34,7 @@ function MainLayout() {
   useEffect(() => {
     i18n.changeLanguage("es");
     player?.play();
+    crashLogger.setBreadcrumb('Splash video started', 'Media');
   }, []);
 
 
@@ -41,10 +44,14 @@ function MainLayout() {
         if (player.currentTime >= player.duration - 0.1) {
           setIsVideoFinished(true);
           clearInterval(checkPlaybackStatus);
+          crashLogger.setBreadcrumb('Splash video finished', 'Media');
         }
       }
     }, 500);
-    return () => clearInterval(checkPlaybackStatus);
+    return () => {
+      clearInterval(checkPlaybackStatus);
+      crashLogger.setBreadcrumb('Video playback cleanup', 'Media');
+    };
   }, [player]);
 
 
