@@ -1,7 +1,5 @@
 import {Alert} from "react-native";
 import {supabase, SUPABASE_URL} from "../supabase";
-import * as ImagePicker from "expo-image-picker";
-import {manipulateAsync, SaveFormat} from "expo-image-manipulator";
 import {Company, CompanyLink} from "./company.interface";
 import { safePickImage } from "../utils/safeImagePicker";
 

@@ -12,11 +12,10 @@ import {
 } from 'react-native';
 import Modal from 'react-native-modal';
 import { Picker } from '@react-native-picker/picker';
-import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../../supabase';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImageManipulator from 'expo-image-manipulator';
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import PhotoPicker from '../../utils/PhotoPicker';
 import { router } from 'expo-router';
 
 interface CreateGroupModalProps {
@@ -78,40 +77,22 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
   };
 
   const pickImage = async (): Promise<string | null> => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: [10, 10], // Ajustado para mantener la proporción 10:1
-      quality: 1,
-      selectionLimit: 1, // Solo permite una imagen
-      mediaTypes: ["images"], // Solo imágenes
-    });
+    const uri = await PhotoPicker.pickSingleImage();
 
-    if (result.canceled || result.assets.length === 0) {
+    if (!uri) {
       return null;
     }
-    const image = result.assets[0];
 
-    if (image.width > 1000) {
-      try {
-        const aspectRatio = image.height / image.width;
-        const newWidth = 1000;
-        const newHeight = Math.round(newWidth * aspectRatio);
-
-        const manipResult = await manipulateAsync(
-          image.uri,
-          [{ resize: { width: newWidth, height: newHeight } }],
-          { compress: 0.7, format: SaveFormat.PNG }
-        );        
-        //const imageUrl = await uploadImage(manipResult.uri);
-        setGroupImage(manipResult.uri);
-        return manipResult.uri;
-      } catch (error) {
-        throw new Error("No se pudo comprimir la imagen");
-      }
-    } else {
-      //const imageUrl = await uploadImage(image.uri);
-      setGroupImage(image.uri);
-      return image.uri;
+    try {
+      const manipResult = await ImageManipulator.manipulateAsync(
+        uri,
+        [{ resize: { width: 1000, height: 1000 } }],
+        { compress: 0.7, format: ImageManipulator.SaveFormat.PNG }
+      );
+      setGroupImage(manipResult.uri);
+      return manipResult.uri;
+    } catch (error) {
+      throw new Error("No se pudo comprimir la imagen");
     }
   };
 

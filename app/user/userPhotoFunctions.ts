@@ -1,5 +1,3 @@
-import * as ImagePicker from "expo-image-picker";
-import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import { Alert } from "react-native";
 import { supabase } from "../supabase";
 import { safePickMultipleImages } from "../utils/safeImagePicker";

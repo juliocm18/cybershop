@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import * as Location from 'expo-location';
@@ -23,6 +22,7 @@ import { MediaInfo, LocationInfo, MessageType } from '../types';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { useMediaSafety } from '../../../hooks/useMediaSafety';
 import { crashLogger } from '../../../utils/crashlytics';
+import PhotoPicker from '../../utils/PhotoPicker';
 
 interface ChatInputProps {
   onSendMessage: (message: string, messageType: MessageType, mediaInfo?: MediaInfo, locationInfo?: LocationInfo) => Promise<void>;
@@ -122,51 +122,22 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled, r
 
   const pickImage = async (): Promise<void> => {
     try {
-      const result = await safeImagePicker(async () => {
-        return await ImagePicker.launchImageLibraryAsync({
-          allowsEditing: true,
-          quality: 0.8,
-          selectionLimit: 1,
-          mediaTypes: ["images"],
-        });
+      const uri = await PhotoPicker.pickSingleImage();
+
+      if (!uri) {
+        return;
+      }
+
+      const manipResult = await safeImageManipulator(async () => {
+        return await manipulateAsync(
+          uri,
+          [{ resize: { width: 1000 } }],
+          { compress: 0.7, format: SaveFormat.JPEG }
+        );
       });
 
-      if (!result || result.canceled || result.assets.length === 0) {
-        return;
-      }
-      const image = result.assets[0];
-
-      if (image.width > 1000) {
-        try {
-          const aspectRatio = image.height / image.width;
-          const newWidth = 1000;
-          const newHeight = Math.round(newWidth * aspectRatio);
-
-          const manipResult = await safeImageManipulator(async () => {
-            return await manipulateAsync(
-              image.uri,
-              [{ resize: { width: newWidth, height: newHeight } }],
-              { compress: 0.7, format: SaveFormat.PNG }
-            );
-          });
-
-          if (manipResult) {
-            await uploadAndSendMedia(manipResult.uri, 'image', image.fileName || 'image.png');
-          }
-          return;
-        } catch (error) {
-          await crashLogger.logError(error as Error, 'ChatImageResize');
-          Alert.alert('Error', 'No se pudo comprimir la imagen');
-          return;
-        }
-      }
-
-      if (!["image/png"].includes(image.mimeType || "")) {
-        Alert.alert('Error', 'Solo son permitidos PNG.');
-        return;
-      }
-
-      await uploadAndSendMedia(image.uri, 'image', image.fileName || 'image.jpg');
+      const finalUri = manipResult ? manipResult.uri : uri;
+      await uploadAndSendMedia(finalUri, 'image', 'image.jpg');
     } catch (error) {
       await crashLogger.logError(error as Error, 'ChatImagePicker');
       Alert.alert('Error', 'No se pudo seleccionar la imagen');
@@ -186,13 +157,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled, r
 
       if (result && result.canceled === false && result.assets && result.assets.length > 0) {
         const selectedDoc = result.assets[0];
-        const fileInfo = await FileSystem.getInfoAsync(selectedDoc.uri);
-
-        if (fileInfo.size && fileInfo.size > 10 * 1024 * 1024) {
-          Alert.alert('File too large', 'Please select a PDF smaller than 10MB');
-          return;
-        }
-
         await uploadAndSendMedia(selectedDoc.uri, 'pdf', selectedDoc.name);
       }
     } catch (error) {
@@ -205,32 +169,13 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled, r
 
   const pickVideo = async () => {
     try {
-      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!permissionResult.granted) {
-        Alert.alert('Permission required', 'You need to grant permission to access your videos');
+      const uri = await PhotoPicker.pickSingleVideo();
+
+      if (!uri) {
         return;
       }
 
-      const result = await safeVideoOperation(async () => {
-        return await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-          allowsEditing: true,
-          quality: 0.7,
-          videoMaxDuration: 300,
-        });
-      });
-
-      if (result && !result.canceled && result.assets && result.assets.length > 0) {
-        const selectedVideo = result.assets[0];
-        const fileInfo = await FileSystem.getInfoAsync(selectedVideo.uri);
-
-        if (fileInfo.size && fileInfo.size > 15 * 1024 * 1024) {
-          Alert.alert('File too large', 'Please select a video smaller than 15MB');
-          return;
-        }
-
-        await uploadAndSendMedia(selectedVideo.uri, 'video', selectedVideo.fileName || 'video.mp4');
-      }
+      await uploadAndSendMedia(uri, 'video', 'video.mp4');
     } catch (error) {
       await crashLogger.logError(error as Error, 'ChatVideoPicker');
       Alert.alert('Error', 'Failed to select video');
@@ -301,14 +246,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled, r
       setIsRecording(false);
 
       if (uri) {
-        const fileInfo = await FileSystem.getInfoAsync(uri);
-
-        // Check file size (10MB limit)
-        if (fileInfo.size && fileInfo.size > 10 * 1024 * 1024) {
-          Alert.alert('File too large', 'Audio recording is larger than 10MB');
-          return;
-        }
-
         // Upload to Supabase storage
         await uploadAndSendMedia(uri, 'audio', 'audio_recording.m4a', recordingDuration);
       }
@@ -427,7 +364,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled, r
       const mediaInfo: MediaInfo = {
         url: publicUrl,
         filename,
-        filesize: (await FileSystem.getInfoAsync(uri)).size,
+        filesize: 0, // File size not needed for display
         duration: duration // Only for audio/video
       };
 

@@ -1,7 +1,7 @@
 import {supabase} from "../supabase";
 import {Link} from "./model";
-import * as ImagePicker from "expo-image-picker";
 import {manipulateAsync, SaveFormat} from "expo-image-manipulator";
+import PhotoPicker from "../utils/PhotoPicker";
 
 export default class LinkFunctions {
   static getAllPaged = async (from: number, to: number): Promise<Link[] | null> => {
@@ -42,37 +42,22 @@ export default class LinkFunctions {
   };
 
   static pickImage = async (): Promise<string | null> => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: [10, 10], // Ajustado para mantener la proporción 10:1
-      quality: 1,
-      selectionLimit: 1, // Solo permite una imagen
-      mediaTypes: ["images"], // Solo imágenes
-    });
+    const uri = await PhotoPicker.pickSingleImage();
 
-    if (result.canceled || result.assets.length === 0) {
+    if (!uri) {
       return null;
     }
-    const image = result.assets[0];
 
-    if (image.width > 128) {
-      try {
-        const manipResult = await manipulateAsync(
-          image.uri,
-          [{resize: {width: 128, height: 128}}],
-          {compress: 0.7, format: SaveFormat.PNG}
-        );
-        return manipResult.uri;
-      } catch (error) {
-        throw new Error("No se pudo comprimir la imagen");
-      }
+    try {
+      const manipResult = await manipulateAsync(
+        uri,
+        [{resize: {width: 128, height: 128}}],
+        {compress: 0.7, format: SaveFormat.PNG}
+      );
+      return manipResult.uri;
+    } catch (error) {
+      throw new Error("No se pudo comprimir la imagen");
     }
-
-    // 🔍 Validar tipo de imagen
-    if (!["image/png"].includes(image.mimeType || "")) {
-      throw new Error("Solo son permitidos PNG.");
-    }
-    return image.uri; // Retornar la URI para la subida
   };
 
   static uploadImage = async (uri: string): Promise<string> => {
