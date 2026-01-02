@@ -55,8 +55,11 @@ Wrapper de TypeScript para Android Photo Picker con métodos:
 - `pickMultipleImages(maxImages): Promise<string[]>`
 
 **Implementación:**
-- **Android:** Usa `PhotoPickerModule` (módulo nativo Kotlin) - sin permisos requeridos
+- **Android (Producción):** Usa `PhotoPickerModule` (módulo nativo Kotlin) - sin permisos requeridos
+- **Android (Desarrollo/Expo Go):** Fallback automático a `expo-image-picker` cuando el módulo nativo no está disponible
 - **iOS:** Mantiene `expo-image-picker` directamente en `safeImagePicker.ts` - sin permisos desde iOS 14+
+
+**Nota importante:** El módulo nativo solo funciona en builds nativos (APK/AAB). En desarrollo con Expo Go, usa automáticamente `expo-image-picker` como fallback.
 
 ### 4. Refactorización de Código
 
@@ -130,7 +133,16 @@ Wrapper de TypeScript para Android Photo Picker con métodos:
 
 ## Próximos Pasos
 
-### Para Compilar y Probar:
+### Para Desarrollo (Expo Go):
+
+El módulo funciona automáticamente en desarrollo usando `expo-image-picker` como fallback:
+```bash
+npx expo start
+```
+
+**Nota:** En Expo Go verás el warning `[PhotoPicker] Native module not available, using expo-image-picker fallback` - esto es normal y esperado.
+
+### Para Compilar y Probar en Producción:
 
 #### Android:
 1. **Limpiar y reconstruir el proyecto:**
@@ -138,8 +150,16 @@ Wrapper de TypeScript para Android Photo Picker con métodos:
    cd android
    ./gradlew clean
    cd ..
+   npx expo prebuild --clean
    npx expo run:android
    ```
+
+2. **O generar APK con EAS:**
+   ```bash
+   eas build --platform android --profile preview
+   ```
+
+**Nota:** El módulo usa Expo Modules API moderna, compatible con React Native ≥ 0.76 y Expo SDK ≥ 52.
 
 #### iOS:
 1. **Reconstruir la app:**
@@ -185,11 +205,19 @@ Ambas plataformas NO requieren permisos de almacenamiento y cumplen con las pol�
 
 ## Archivos Importantes
 
-### Módulos Nativos (Android)
-- `android/app/src/main/java/com/burbitstudio/mallcybershop/PhotoPickerModule.kt`
-- `android/app/src/main/java/com/burbitstudio/mallcybershop/PhotoPickerPackage.kt`
-- `android/app/src/main/java/com/burbitstudio/mallcybershop/MainActivity.kt`
-- `android/app/src/main/java/com/burbitstudio/mallcybershop/MainApplication.kt`
+### 1. Módulo Nativo Android (Kotlin)
+
+**Archivos creados:**
+- `android/app/src/main/java/com/burbitstudio/mallcybershop/PhotoPickerModule.kt` - Expo Module usando Activity Result API
+- `expo-module.config.json` - Configuración de registro automático del módulo
+
+**Implementación moderna:**
+- ✅ Usa `expo.modules.kotlin.Module` con `ModuleDefinition`
+- ✅ Usa `OnActivityResult` listener para manejar resultados
+- ✅ Usa `startActivityForResult` con `Intent.ACTION_GET_CONTENT`
+- ✅ No requiere `PhotoPickerPackage` manual
+- ✅ No requiere `onActivityResult` forwarding en MainActivity
+- ✅ Registro automático vía Expo Modules con `expo-module.config.json`
 
 ### Módulos JavaScript/TypeScript
 - `app/utils/PhotoPicker.ts`
